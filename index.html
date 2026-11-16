@@ -67,7 +67,9 @@ header .sub { color: var(--muted); max-width: none; font-family: var(--f-display
 /* featured words */
 .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
 .main { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
-.side { min-width: 0; }
+.side { min-width: 0; display: flex; flex-direction: column; gap: 18px; }
+.hearth { display: flex; justify-content: center; }
+.hearth .fireplace svg { width: 150px; }
 .muse { display: flex; flex-direction: column; gap: 20px; }
 .muse .word { font-size: 1.15rem; }
 .muse .words { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
@@ -154,7 +156,6 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 .banner { border: 1.5px solid var(--warn); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: .92rem; }
 
 /* extras */
-.form-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
 .fireplace { background: none; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; color: var(--muted); font-size: .72rem; font-family: var(--f-mono); letter-spacing: .06em; text-transform: uppercase; flex: none; }
 .fireplace svg { width: 92px; height: auto; display: block; overflow: visible; }
 .fireplace .flames { transform-origin: 60px 88px; transform-box: view-box; transition: transform 1.5s ease; }
@@ -265,6 +266,7 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
           </div>
           <blockquote class="excerpt" id="excerpt" style="margin:0"></blockquote>
         </section>
+        <div class="hearth" id="hearth"></div>
       </aside>
     </div>
 
@@ -615,11 +617,10 @@ function buildForm(p) {
   const status = h("p", { class: "status-line", id: "f-status" }, !S.db && S.ready ? "Submissions are switched off until storage is connected." : "");
   const btn = h("button", { class: "btn", type: "submit", disabled: !S.db || S.busy }, S.busy ? "Submitting…" : `Submit to prompt ${p.n}`);
   const form = h("form", { class: "submit", onsubmit: e => { e.preventDefault(); submit(p); } },
-    h("div", { class: "form-head" }, h("h3", {}, "Submit your poem"), fireplaceEl()),
+    h("h3", {}, "Submit your poem"),
     h("div", { class: "row" }, h("label", { for: "f-poet" }, "Who are you?", sel), h("label", { for: "f-title" }, "Title (optional)", title)),
     h("div", { class: "tabs", role: "tablist" }, tabText, tabFile), body,
     h("div", { class: "row", style: "align-items:center" }, h("div", { style: "flex:0 0 auto" }, btn), status));
-  queueMicrotask(updateFireCaps);
   return form;
 }
 
@@ -995,10 +996,10 @@ function setFire(on) {
   updateFireCaps();
 }
 function toggleFire() { const next = !fire.on; try { localStorage.setItem("ffh-fire-muted", next ? "0" : "1"); } catch {} setFire(next); }
+function isRoaring() { const now = Date.now(), p = promptFor(now); return now >= p.assigned && now < p.due && p.due - now < H; }
+function updateRoar() { for (const b of document.querySelectorAll(".fireplace")) b.classList.toggle("roar", isRoaring()); }
 function fireplaceEl() {
-  const now = Date.now(), p = promptFor(now);
-  const roar = now >= p.assigned && now < p.due && p.due - now < H;
-  const b = h("button", { class: "fireplace" + (roar ? " roar" : ""), type: "button", onclick: toggleFire });
+  const b = h("button", { class: "fireplace" + (isRoaring() ? " roar" : ""), type: "button", onclick: toggleFire });
   b.innerHTML = `<svg viewBox="0 0 120 100" aria-hidden="true">
     <rect x="8" y="12" width="104" height="86" rx="6" fill="#5A1A24"/>
     <path d="M8 34 H112 M8 56 H112 M8 78 H112 M34 12 V34 M86 12 V34 M20 34 V56 M100 34 V56 M20 78 V98 M100 78 V98" stroke="#3E1018" stroke-width="2"/>
@@ -1047,11 +1048,13 @@ renderLegend();
 renderAll();
 startLeaves();
 $("stuck").addEventListener("click", nudge);
+$("hearth").append(fireplaceEl());
+updateFireCaps();
 let lastMinute = -1;
 setInterval(() => {
   renderNow();
   const m = Math.floor(Date.now() / MIN);
-  if (m !== lastMinute) { lastMinute = m; renderCal(); renderShame(); renderCloud(); renderZineCard(); if (!document.activeElement || !$("detail").contains(document.activeElement)) renderDetail(); }
+  if (m !== lastMinute) { lastMinute = m; updateRoar(); renderCal(); renderShame(); renderCloud(); renderZineCard(); if (!document.activeElement || !$("detail").contains(document.activeElement)) renderDetail(); }
 }, 1000);
 
 (async () => {
