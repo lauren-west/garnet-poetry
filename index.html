@@ -17,7 +17,7 @@
   --paper: #F7EEE8; --card: #FFFBF8; --ink: #3B0F1B; --muted: #7D5A60; --line: #EAD5CE;
   --accent: #8E1B33; --accent-ink: #FFF7F3; --hi: #F2B544; --hi-ink: #3B0F1B;
   --roast: #B4241E; --ok: #56702A; --warn: #B95E17;
-  --tintA: #F6DFDB; --tintB: #F8E7D0; --today: #8E1B33; --hero-bg: #6D1528; --hero-fg: #FCEFE8;
+  --tintA: #F6DFDB; --tintB: #F8E7D0; --today: #8E1B33; --hero-bg: #6D1528; --hero-fg: #FCEFE8; --avbg: #F3DCD2;
   --f-display: "Young Serif", Georgia, "Times New Roman", serif;
   --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -26,12 +26,12 @@
   --paper: #1B0C11; --card: #27131A; --ink: #F6E7E1; --muted: #C4A3A4; --line: #4A2631;
   --accent: #E46A82; --accent-ink: #1B0C11; --hi: #E9A93B; --hi-ink: #3B0F1B;
   --roast: #FF8070; --ok: #AAC66B; --warn: #F0A25A;
-  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; color-scheme: dark; } }
+  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; --avbg: #4A2631; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --paper: #1B0C11; --card: #27131A; --ink: #F6E7E1; --muted: #C4A3A4; --line: #4A2631;
   --accent: #E46A82; --accent-ink: #1B0C11; --hi: #E9A93B; --hi-ink: #3B0F1B;
   --roast: #FF8070; --ok: #AAC66B; --warn: #F0A25A;
-  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; color-scheme: dark; }
+  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; --avbg: #4A2631; color-scheme: dark; }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -99,10 +99,15 @@ header .sub { color: var(--muted); max-width: 52ch; font-family: var(--f-display
 .chip { font-size: .78rem; line-height: 1.25; border-radius: 4px; padding: 3px 6px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
 .chip.due { background: var(--ink); color: var(--paper); }
 .chip.drop { border: 1px dashed var(--muted); color: var(--muted); }
-.dots { display: flex; gap: 3px; margin-top: auto; }
-.dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--muted); }
-.dot.on { background: var(--ok); border-color: var(--ok); }
-.dot.late { background: var(--roast); border-color: var(--roast); }
+.av { display: inline-block; width: var(--s, 22px); height: var(--s, 22px); border-radius: 50%; border: 2px solid var(--line); overflow: hidden; background: var(--avbg); flex: none; vertical-align: middle; }
+.av svg { width: 100%; height: 100%; display: block; }
+.av.on { border-color: var(--ok); }
+.av.late { border-color: var(--roast); }
+.av.none { opacity: .4; }
+.avs { display: flex; gap: 3px; margin-top: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: .9rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.who { display: inline-flex; align-items: center; gap: 10px; }
 
 /* detail */
 .detail { display: flex; flex-direction: column; gap: 22px; }
@@ -159,7 +164,8 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
   .day .num span { display: none; }
   .chip { font-size: .66rem; padding: 2px 3px; }
   .chip.drop { display: none; }
-  .dot { width: 6px; height: 6px; }
+  .avs { display: grid; grid-template-columns: repeat(2, 14px); gap: 2px; }
+  .avs .av { --s: 14px; border-width: 1.5px; }
   .cal { gap: 3px; }
   .dow { padding: 0 2px 4px; font-size: .62rem; letter-spacing: .04em; }
   .chip .long { display: none; }
@@ -185,7 +191,7 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
     <section aria-labelledby="cal-h">
       <div class="cal-head">
         <h2 id="cal-h">The calendar</h2>
-        <span class="muted" style="font-size:.9rem">Click a day to open its prompt. Dots are Hattie, Marina, Avery and Lauren, in that order.</span>
+        <div class="legend" id="legend"><span>Click a day to open its prompt.</span></div>
       </div>
       <div class="cal" id="cal"></div>
     </section>
@@ -386,6 +392,45 @@ function canned(kind, p, poet, diff, seed) {
   return line.replaceAll("{name}", nameOf(poet)).replaceAll("{prompt}", p.text).replaceAll("{early}", d).replaceAll("{late}", d).replaceAll("{left}", d);
 }
 
+/* ---------- avatars (same beige skin for everyone) ---------- */
+const SKIN = "#E9C9A4", SKIN_SH = "#D7AE86", FEAT = "#3B0F1B";
+const curls = (pts, rad, fill) => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${rad}" fill="${fill}"/>`).join("");
+const AVATARS = [
+  { shirt: "#8E1B33",
+    back: curls([[9,10],[12,7],[16,6],[20,7],[23,10],[24.6,14],[7.4,14],[24.6,18],[7.4,18],[24,22],[8,22],[22.4,25.6],[9.6,25.6],[19.6,27.2],[12.4,27.2]], 3.6, "#C48A3E"),
+    front: curls([[11.4,10.4],[14.4,9.3],[17.6,9.3],[20.6,10.4]], 2.6, "#C48A3E") },
+  { shirt: "#56702A",
+    back: '<path d="M8 15 Q8 6.5 16 6.5 Q24 6.5 24 15 L24.6 27.4 Q20.5 28.4 18.6 26 L18 22 H14 L13.4 26 Q11.5 28.4 7.4 27.4 Z" fill="#17110F"/>',
+    front: '<path d="M8.6 15 Q8.6 8 16 8 Q23.4 8 23.4 15 Q22 11 17 10.4 Q12 10.6 8.6 15 Z" fill="#17110F"/>' },
+  { shirt: "#D99A2B",
+    back: "",
+    front: '<path d="M8.3 17.2 Q7.4 6.4 16 6.4 Q24.6 6.4 23.7 17.2 L22.6 17.2 Q22.9 12.2 20.2 10.8 Q16.2 12.6 11 11.4 Q9.2 13 9.4 17.2 Z" fill="#A4452B"/>' },
+  { shirt: "#6A2A5A",
+    back: '<path d="M8 15 Q8 6.5 16 6.5 Q24 6.5 24 15 Q25 21 24 25 Q25.6 27.6 23 28.6 Q20.4 28 19 25 L18 22 H14 L13 25 Q11.6 28 9 28.6 Q6.4 27.6 8 25 Q7 21 8 15 Z" fill="#6B4226"/>',
+    front: '<path d="M8.6 15.6 Q8.8 8 16 8 Q23.2 8 23.4 15.6 Q21.6 10.6 16 9.8 Q10.4 10.6 8.6 15.6 Z" fill="#6B4226"/><path d="M16 8 V10.2" stroke="#4E2F1B" stroke-width=".7"/>' },
+];
+function avatarSvg(i) {
+  const a = AVATARS[i];
+  return `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">` +
+    `<path d="M4.5 33 Q5.5 23.6 16 23.6 Q26.5 23.6 27.5 33 Z" fill="${a.shirt}"/>` +
+    `<rect x="14" y="19.5" width="4" height="4.6" rx="1" fill="${SKIN_SH}"/>` +
+    a.back +
+    `<circle cx="16" cy="15.6" r="7" fill="${SKIN}"/>` +
+    a.front +
+    `<circle cx="13.5" cy="16.2" r=".85" fill="${FEAT}"/><circle cx="18.5" cy="16.2" r=".85" fill="${FEAT}"/>` +
+    `<path d="M14.2 19 Q16 20.3 17.8 19" stroke="#9B4A4A" stroke-width=".8" fill="none" stroke-linecap="round"/>` +
+    `<circle cx="12.2" cy="18.2" r="1" fill="#E79F95" opacity=".55"/><circle cx="19.8" cy="18.2" r="1" fill="#E79F95" opacity=".55"/>` +
+    `</svg>`;
+}
+function avatar(i, size, state) {
+  const el = h("span", { class: "av" + (state ? " " + state : ""), style: `--s:${size}px`, title: nameOf(i) });
+  if (i < AVATARS.length) el.innerHTML = avatarSvg(i);
+  return el;
+}
+function renderLegend() {
+  $("legend").append(...[0, 1, 2, 3].map(i => h("span", {}, avatar(i, 22), nameOf(i))));
+}
+
 /* ---------- featured words ---------- */
 let lastPoem = -1;
 function drawPoem() {
@@ -437,8 +482,8 @@ function renderCal() {
     const kids = [h("div", { class: "num" }, h("b", {}, day.getDate()), showMonth ? h("span", { class: "muted" }, day.toLocaleString(undefined, { month: "short" })) : null)];
     if (dueP) kids.push(h("span", { class: "chip due" }, `№${dueP.n} due`, h("span", { class: "long" }, ` · ${dueP.text}`)));
     if (dropP && (!owner || owner.n !== dropP.n)) kids.push(h("span", { class: "chip drop" }, `№${dropP.n} drops`, h("span", { class: "long" }, " tonight")));
-    if (dueP) kids.push(h("div", { class: "dots", "aria-hidden": "true" }, [0, 1, 2, 3].map(i => {
-      const c = classify(dueP, i, now); return h("span", { class: "dot " + (c.first ? (c.diff < 0 ? "late" : "on") : "") });
+    if (dueP) kids.push(h("div", { class: "avs", "aria-hidden": "true" }, [0, 1, 2, 3].map(i => {
+      const c = classify(dueP, i, now); return avatar(i, 18, c.first ? (c.diff < 0 ? "late" : "on") : "none");
     })));
     const attrs = { class: cls };
     if (owner || dropP) {
@@ -462,7 +507,7 @@ function renderDetail() {
       roastEl = h("p", { class: "roast" + (c.kind === "early" || c.kind === "ontime" ? " kind" : "") + (pending ? " pending" : "") }, pending ? "Claude is sharpening a roast…" : txt);
     } else if (c.kind === "ghost") roastEl = h("p", { class: "roast" }, canned(c.kind, p, i, c.diff));
     return h("div", { class: "poet" },
-      h("div", { class: "poet-name" }, nameOf(i), h("span", { class: "pill " + c.cls }, c.label)),
+      h("div", { class: "poet-name" }, h("span", { class: "who" }, avatar(i, 36), nameOf(i)), h("span", { class: "pill " + c.cls }, c.label)),
       c.first ? h("span", { class: "muted mono", style: "font-size:.8rem" }, `Submitted ${fmtWhen(c.first.submittedAt)}${c.count > 1 ? ` · ${c.count} versions` : ""}`) : null,
       roastEl);
   }));
@@ -607,7 +652,7 @@ function renderShame() {
   const worst = rows[0].score > 0 ? rows[0].i : -1;
   $("shame-card").hidden = worst < 0;
   $("shame").replaceChildren(...rows.map(r => h("tr", {},
-    h("td", {}, h("b", {}, nameOf(r.i)), r.i === worst ? h("span", { class: "crown" }, " · current disgrace") : null),
+    h("td", {}, h("span", { class: "who" }, avatar(r.i, 26), h("b", {}, nameOf(r.i))), r.i === worst ? h("span", { class: "crown" }, " · current disgrace") : null),
     h("td", { class: "n" }, r.poems), h("td", { class: "n" }, r.early), h("td", { class: "n" }, r.photo),
     h("td", { class: "n" }, r.late), h("td", { class: "n" }, r.ghost), h("td", { class: "n" }, r.hours.toFixed(1)))));
 }
@@ -617,6 +662,7 @@ function renderAll() { renderNow(); renderCal(); renderDetail(); renderShame(); 
 /* ---------- boot ---------- */
 S.sel = promptFor(Date.now()).n;
 drawPoem();
+renderLegend();
 renderAll();
 let lastMinute = -1;
 setInterval(() => {
