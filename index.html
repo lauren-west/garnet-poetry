@@ -154,7 +154,19 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 .banner { border: 1.5px solid var(--warn); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: .92rem; }
 
 /* extras */
-.fire-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.form-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.fireplace { background: none; border: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; color: var(--muted); font-size: .72rem; font-family: var(--f-mono); letter-spacing: .06em; text-transform: uppercase; flex: none; }
+.fireplace svg { width: 92px; height: auto; display: block; overflow: visible; }
+.fireplace .flames { transform-origin: 60px 88px; transform-box: view-box; transition: transform 1.5s ease; }
+.fireplace.roar .flames { transform: scale(1.3); }
+.fireplace .fl { transform-origin: 60px 88px; transform-box: view-box; animation: flick .9s ease-in-out infinite alternate; }
+.fireplace .fl2 { animation-duration: .7s; animation-delay: -.3s; }
+.fireplace .fl3 { animation-duration: .55s; animation-delay: -.1s; }
+.fireplace.roar .fl { animation-duration: .45s; }
+.fireplace .glow { animation: glow 1.6s ease-in-out infinite alternate; }
+@keyframes flick { 0% { transform: scale(1, 1) skewX(0deg); } 50% { transform: scale(.93, 1.09) skewX(3deg); } 100% { transform: scale(1.05, .94) skewX(-3deg); } }
+@keyframes glow { from { opacity: .25; } to { opacity: .5; } }
+@media (prefers-reduced-motion: reduce) { .fireplace .fl, .fireplace .glow { animation: none; } }
 .leaves { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
 .leaf { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; border: 0; background: none; padding: 0; opacity: .85; }
 .leaf svg { width: 100%; height: 100%; display: block; }
@@ -224,7 +236,6 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
       <h1>Garnet Girls Poetry Club</h1>
       <p class="eyebrow tagline">16-Day Challenge · Nov 15 – Dec 1</p>
       <p class="sub">Eight doors, four keepers. Each opens as the day goes out and waits two dusks for us. The clock is listening.</p>
-      <div class="fire-row"><button class="btn-ghost" id="fire" type="button" aria-pressed="false">Light the fireplace</button><span class="muted" style="font-size:.85rem">Crackles louder as a deadline gets close.</span></div>
     </header>
     <section class="card now" id="now" aria-live="polite"></section>
 
@@ -604,10 +615,11 @@ function buildForm(p) {
   const status = h("p", { class: "status-line", id: "f-status" }, !S.db && S.ready ? "Submissions are switched off until storage is connected." : "");
   const btn = h("button", { class: "btn", type: "submit", disabled: !S.db || S.busy }, S.busy ? "Submitting…" : `Submit to prompt ${p.n}`);
   const form = h("form", { class: "submit", onsubmit: e => { e.preventDefault(); submit(p); } },
-    h("h3", {}, "Submit your poem"),
+    h("div", { class: "form-head" }, h("h3", {}, "Submit your poem"), fireplaceEl()),
     h("div", { class: "row" }, h("label", { for: "f-poet" }, "Who are you?", sel), h("label", { for: "f-title" }, "Title (optional)", title)),
     h("div", { class: "tabs", role: "tablist" }, tabText, tabFile), body,
     h("div", { class: "row", style: "align-items:center" }, h("div", { style: "flex:0 0 auto" }, btn), status));
+  queueMicrotask(updateFireCaps);
   return form;
 }
 
@@ -830,7 +842,7 @@ function renderZineCard() {
   if (now < ZINE_OPEN) {
     const days = Math.ceil((ZINE_OPEN - now) / (24 * H));
     card.replaceChildren(h("div", { class: "cal-head" }, h("h2", {}, "The Season 1 zine"), h("span", { class: "pill idle" }, `${days} day${days === 1 ? "" : "s"} away`)),
-      h("p", { class: "muted", style: "margin-top:8px" }, "On December 1, every poem from the challenge gets bound into one little book, with awards and a word cloud. Bring it to club."));
+      h("p", { class: "muted", style: "margin-top:8px" }, "On December 1, every poem from the challenge gets bound into one little book. Secrets announced at club."));
     return;
   }
   card.replaceChildren(h("div", { class: "cal-head" }, h("h2", {}, "The Season 1 zine"), h("button", { class: "btn", type: "button", onclick: openZine }, "Open the zine")),
@@ -967,14 +979,48 @@ function stopFire() {
   clearInterval(fire.timer);
   if (fire.gain && fire.ctx) { fire.gain.gain.setTargetAtTime(0, fire.ctx.currentTime, 0.3); const s = fire.src; setTimeout(() => { try { s.stop(); } catch {} }, 1200); }
 }
-function toggleFire() {
-  const b = $("fire");
-  fire.on = !fire.on;
-  if (fire.on && !startFire()) fire.on = false;
-  if (!fire.on) stopFire();
-  b.setAttribute("aria-pressed", String(fire.on));
-  b.textContent = fire.on ? "Put out the fire" : "Light the fireplace";
+function fireMuted() { try { return localStorage.getItem("ffh-fire-muted") === "1"; } catch { return false; } }
+function updateFireCaps() {
+  for (const b of document.querySelectorAll(".fireplace")) {
+    b.setAttribute("aria-pressed", String(fire.on));
+    b.setAttribute("aria-label", fire.on ? "Fireplace sound on. Click to mute." : "Fireplace sound off. Click to turn it on.");
+    const c = b.querySelector(".cap"); if (c) c.textContent = fire.on ? "crackling \u00B7 tap to mute" : "tap for sound";
+  }
 }
+function setFire(on) {
+  if (on === fire.on) return;
+  fire.on = on;
+  if (on && !startFire()) fire.on = false;
+  if (!on) stopFire();
+  updateFireCaps();
+}
+function toggleFire() { const next = !fire.on; try { localStorage.setItem("ffh-fire-muted", next ? "0" : "1"); } catch {} setFire(next); }
+function fireplaceEl() {
+  const now = Date.now(), p = promptFor(now);
+  const roar = now >= p.assigned && now < p.due && p.due - now < H;
+  const b = h("button", { class: "fireplace" + (roar ? " roar" : ""), type: "button", onclick: toggleFire });
+  b.innerHTML = `<svg viewBox="0 0 120 100" aria-hidden="true">
+    <rect x="8" y="12" width="104" height="86" rx="6" fill="#5A1A24"/>
+    <path d="M8 34 H112 M8 56 H112 M8 78 H112 M34 12 V34 M86 12 V34 M20 34 V56 M100 34 V56 M20 78 V98 M100 78 V98" stroke="#3E1018" stroke-width="2"/>
+    <rect x="2" y="6" width="116" height="9" rx="3" fill="#6D1528"/>
+    <path d="M28 98 V54 Q28 30 60 30 Q92 30 92 54 V98 Z" fill="#160709"/>
+    <ellipse class="glow" cx="60" cy="86" rx="30" ry="12" fill="#F2B544"/>
+    <g class="flames">
+      <path class="fl" d="M60 89 C43 87 41 71 49 60 C51 68 55 66 54 55 C62 61 70 66 68 76 C72 72 74 70 74 65 C81 76 77 89 60 89 Z" fill="#D2502A"/>
+      <path class="fl fl2" d="M60 89 C49 88 47 77 53 70 C55 75 58 74 57 66 C63 71 68 75 67 81 C70 79 71 77 71 75 C74 82 71 89 60 89 Z" fill="#F2B544"/>
+      <path class="fl fl3" d="M60 89 C54 88 53 82 56 78 C58 81 60 80 59 76 C63 79 65 82 64 85 C66 84 66 83 66 82 C68 86 66 89 60 89 Z" fill="#FFE9A8"/>
+    </g>
+    <rect x="36" y="85" width="48" height="7" rx="3.5" fill="#6B4226" transform="rotate(-9 60 88)"/>
+    <rect x="36" y="85" width="48" height="7" rx="3.5" fill="#7D5230" transform="rotate(9 60 88)"/>
+  </svg>`;
+  b.append(h("span", { class: "cap" }, ""));
+  return b;
+}
+document.addEventListener("pointerdown", function firstTouch(e) {
+  if (e.target.closest && e.target.closest(".fireplace")) { document.removeEventListener("pointerdown", firstTouch, true); return; }
+  document.removeEventListener("pointerdown", firstTouch, true);
+  if (!fireMuted()) setFire(true);
+}, true);
 
 /* ---------- secret word: pool ---------- */
 let typed = "";
@@ -1000,7 +1046,6 @@ drawPoem();
 renderLegend();
 renderAll();
 startLeaves();
-$("fire").addEventListener("click", toggleFire);
 $("stuck").addEventListener("click", nudge);
 let lastMinute = -1;
 setInterval(() => {
