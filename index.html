@@ -17,7 +17,7 @@
   --paper: #F7EEE8; --card: #FFFBF8; --ink: #3B0F1B; --muted: #7D5A60; --line: #EAD5CE;
   --accent: #8E1B33; --accent-ink: #FFF7F3; --hi: #F2B544; --hi-ink: #3B0F1B;
   --roast: #B4241E; --ok: #56702A; --warn: #B95E17;
-  --tintA: #F6DFDB; --tintB: #F8E7D0; --today: #8E1B33; --hero-bg: #6D1528; --hero-fg: #FCEFE8; --avbg: #F3DCD2;
+  --tintA: #F6DFDB; --tintB: #F8E7D0; --today: #8E1B33; --hero-bg: #6D1528; --hero-fg: #FCEFE8; --avbg: #F7E6DA;
   --f-display: "Young Serif", Georgia, "Times New Roman", serif;
   --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -26,12 +26,12 @@
   --paper: #1B0C11; --card: #27131A; --ink: #F6E7E1; --muted: #C4A3A4; --line: #4A2631;
   --accent: #E46A82; --accent-ink: #1B0C11; --hi: #E9A93B; --hi-ink: #3B0F1B;
   --roast: #FF8070; --ok: #AAC66B; --warn: #F0A25A;
-  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; --avbg: #4A2631; color-scheme: dark; } }
+  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; --avbg: #EED7C6; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --paper: #1B0C11; --card: #27131A; --ink: #F6E7E1; --muted: #C4A3A4; --line: #4A2631;
   --accent: #E46A82; --accent-ink: #1B0C11; --hi: #E9A93B; --hi-ink: #3B0F1B;
   --roast: #FF8070; --ok: #AAC66B; --warn: #F0A25A;
-  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; --avbg: #4A2631; color-scheme: dark; }
+  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; --avbg: #EED7C6; color-scheme: dark; }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -153,6 +153,48 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 
 .banner { border: 1.5px solid var(--warn); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: .92rem; }
 
+/* extras */
+.fire-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.leaves { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
+.leaf { position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; border: 0; background: none; padding: 0; opacity: .85; }
+.leaf svg { width: 100%; height: 100%; display: block; }
+.leaf:hover { opacity: 1; }
+.toast { position: fixed; left: 50%; bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px)); transform: translateX(-50%); background: var(--hero-bg); color: var(--hero-fg); padding: 12px 18px; border-radius: 10px; font-family: var(--f-display); width: max-content; max-width: min(560px, calc(100vw - 32px)); z-index: 30; box-shadow: 0 10px 30px rgba(0,0,0,.3); text-align: center; }
+.toast cite { display: block; font-family: var(--f-mono); font-size: .75rem; font-style: normal; opacity: .75; margin-top: 4px; }
+.sealed { display: flex; align-items: center; gap: 14px; border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; background: var(--paper); }
+.seal { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #C2405A, #6D1528 70%); box-shadow: inset 0 0 0 3px rgba(0,0,0,.18), 0 1px 0 rgba(0,0,0,.2); flex: none; display: grid; place-items: center; color: #FCEFE8; font-family: var(--f-display); font-size: 1rem; }
+.nudge { font-family: var(--f-display); font-style: italic; color: var(--accent); }
+.cloud { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; align-items: baseline; line-height: 1.2; margin-top: 12px; }
+.cloud span { font-family: var(--f-display); }
+.awards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 12px; }
+.award { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; gap: 12px; align-items: center; min-width: 0; }
+.zine-overlay { position: fixed; inset: 0; z-index: 40; background: var(--paper); overflow: auto; }
+.zine-actions { position: sticky; top: 0; display: flex; gap: 10px; justify-content: flex-end; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 12px max(16px, env(safe-area-inset-left, 0px)); background: var(--paper); border-bottom: 1px solid var(--line); z-index: 1; }
+.zine { max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 8px 80px; }
+.zpage { padding-block: 48px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 14px; }
+.zcover { text-align: center; align-items: center; padding-block: 90px; }
+.zcover h1 { font-size: clamp(2.2rem, 7vw, 3.8rem); }
+.zavs { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; margin-top: 18px; text-align: center; }
+.ztoc { font-family: var(--f-display); font-size: 1.15rem; line-height: 1.9; margin: 0; padding-left: 1.4em; }
+.zpoem { border-top: 1px dashed var(--line); padding-top: 18px; display: flex; flex-direction: column; gap: 6px; }
+.zcolophon { text-align: center; border-bottom: 0; }
+.pool { position: fixed; left: 0; right: 0; bottom: 0; height: 0; z-index: 35; pointer-events: none; background: linear-gradient(180deg, rgba(110,190,215,.7), rgba(30,95,140,.85)); transition: height 1.2s ease; }
+.pool.on { height: 40vh; }
+.pool .wave { position: absolute; top: -10px; left: 0; right: 0; height: 12px; background: radial-gradient(circle at 10px 12px, rgba(110,190,215,.7) 9px, transparent 10px) repeat-x; background-size: 20px 12px; animation: wave 2.4s linear infinite; }
+.pool-sign { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); font-family: var(--f-display); color: #FFFFFF; font-size: 1.4rem; text-shadow: 0 2px 6px rgba(0,0,0,.3); white-space: nowrap; }
+.floaty { position: absolute; top: 34%; display: flex; flex-direction: column; align-items: center; animation: bob 2.4s ease-in-out infinite; }
+.floaty .av { border-color: #FFFFFF; position: relative; z-index: 1; }
+.tube { width: 74px; height: 26px; border-radius: 50%; border: 9px solid; margin-top: -16px; box-sizing: border-box; }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(10px) rotate(4deg); } }
+@keyframes wave { to { background-position: 20px 0; } }
+@media (prefers-reduced-motion: reduce) { .floaty, .pool .wave { animation: none; } .pool { transition: none; } }
+@media print {
+  :root, :root[data-theme="dark"] { --paper: #FFFFFF; --card: #FFFFFF; --ink: #3B0F1B; --muted: #6E4F55; --line: #E0CCC4; --accent: #8E1B33; --warn: #B95E17; --ok: #56702A; --roast: #B4241E; --avbg: #F7E6DA; color-scheme: light; }
+  body > *:not(.zine-overlay) { display: none !important; }
+  .zine-overlay { position: static; overflow: visible; }
+  .zine-actions { display: none; }
+  .zpage { break-after: page; border-bottom: 0; }
+}
 @media (max-width: 1080px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
   .muse { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; }
@@ -182,6 +224,7 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
       <h1>Garnet Girls Poetry Club</h1>
       <p class="eyebrow tagline">16-Day Challenge · Nov 15 – Dec 1</p>
       <p class="sub">Eight doors, four keepers. Each opens as the day goes out and waits two dusks for us. The clock is listening.</p>
+      <div class="fire-row"><button class="btn-ghost" id="fire" type="button" aria-pressed="false">Light the fireplace</button><span class="muted" style="font-size:.85rem">Crackles louder as a deadline gets close.</span></div>
     </header>
     <section class="card now" id="now" aria-live="polite"></section>
 
@@ -204,13 +247,22 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
             <div class="words" id="words"></div>
             <div class="muse-foot">
               <button class="btn-ghost" id="reshuffle" type="button">Draw another poem</button>
+              <button class="btn-ghost" id="stuck" type="button">Stuck?</button>
               <span class="muted" style="font-size:.88rem">Read it slowly. Let something here spark your next line.</span>
             </div>
+            <p class="nudge" id="nudge" hidden aria-live="polite"></p>
           </div>
           <blockquote class="excerpt" id="excerpt" style="margin:0"></blockquote>
         </section>
       </aside>
     </div>
+
+    <section class="card" id="cloud-card" aria-labelledby="cloud-h" hidden>
+      <h2 id="cloud-h">What we keep writing about</h2>
+      <div id="cloud"></div>
+    </section>
+
+    <section class="card" id="zine-card" aria-label="Season 1 zine"></section>
 
     <section class="card" id="shame-card" aria-labelledby="shame-h" hidden>
       <div class="cal-head">
@@ -464,8 +516,8 @@ function renderNow() {
   const fmtClock = ms => { if (ms <= 0) return "00:00:00"; const t = Math.floor(ms / 1000); const hh = Math.floor(t / 3600), mm = Math.floor(t % 3600 / 60), ss = t % 60; return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; };
   el.replaceChildren(
     h("div", {}, h("span", { class: "eyebrow" }, label), h("p", { class: "prompt-text" }, p.text), p.note ? h("p", { class: "note" }, p.note) : null),
-    h("div", { class: "clock" }, h("span", { class: "eyebrow" }, over ? "Final poem was due" : open ? "Time left" : "Opens in"),
-      h("div", { class: "big" }, over ? fmtWhen(p.due) : fmtClock(left)),
+    h("div", { class: "clock" }, h("span", { class: "eyebrow" }, over ? "Season one" : open ? "Time left" : "Opens in"),
+      h("div", { class: "big" }, over ? "That\u2019s a wrap" : fmtClock(left)),
       h("div", { class: "eyebrow", style: "margin-top:4px" }, `Due ${fmtWhen(p.due)}`)));
 }
 
@@ -517,17 +569,14 @@ function renderDetail() {
   }));
 
   const subs = S.subs.filter(s => s.prompt === p.n).sort((a, b) => a.submittedAt - b.submittedAt);
-  const poems = h("div", { class: "poems" }, subs.length ? subs.map(s => h("details", {},
-    h("summary", {}, h("span", {}, h("b", {}, nameOf(s.poet)), s.title ? ` — ${s.title}` : ""), h("span", { class: "muted mono", style: "font-size:.8rem" }, fmtWhen(s.submittedAt))),
-    s.fileName ? h("p", { class: "muted", style: "font-size:.85rem;margin-top:8px" }, `From ${s.fileName}`, s.assetUrl ? " · " : "", s.assetUrl ? h("a", { href: s.assetUrl, target: "_blank", rel: "noopener" }, "open original") : null) : null,
-    h("div", { class: "poem-body" }, s.text || "(No readable text in this file.)"))) : h("p", { class: "muted" }, "No poems yet for this prompt."));
+  const poems = renderPoemList(p, subs);
 
   el.replaceChildren(
     h("div", { class: "detail-top" },
       h("div", {}, h("span", { class: "eyebrow" }, `Prompt ${p.n} of 8`), h("h2", { id: "detail-h", style: "margin-top:4px" }, p.text), p.note ? h("p", { class: "muted", style: "margin-top:6px" }, p.note) : null),
       h("div", { class: "when" }, `Drops ${fmtWhen(p.assigned)}`, h("br"), h("b", {}, `Due ${fmtWhen(p.due)}`))),
     roster,
-    h("div", {}, h("h3", { style: "margin-bottom:10px" }, `The poems (${subs.length})`), poems),
+    h("div", {}, h("h3", { style: "margin-bottom:10px" }, Date.now() > p.due ? `The poems (${subs.length})` : `The poems (${subs.length}) \u00B7 sealed until the deadline`), poems),
     buildForm(p));
 }
 
@@ -625,6 +674,7 @@ async function submit(p) {
     const { data, error } = await S.db.from("submissions").insert({ prompt: p.n, poet, title, body: text, file_name: fileName, file_url: fileUrl }).select().single();
     if (error) throw new Error("Saving failed: " + error.message);
     addSub(data);
+    rememberMine(data.id);
     store("ffh-draft-" + p.n, "");
     S.file = null; S.busy = false;
     renderAll();
@@ -661,18 +711,302 @@ function renderShame() {
     h("td", { class: "n" }, r.late), h("td", { class: "n" }, r.ghost), h("td", { class: "n" }, r.hours.toFixed(1)))));
 }
 
-function renderAll() { renderNow(); renderCal(); renderDetail(); renderShame(); }
+function renderAll() { renderNow(); renderCal(); renderDetail(); renderShame(); renderCloud(); renderZineCard(); }
+
+/* ---------- shared bits for the extras ---------- */
+const REDUCED = (() => { try { return matchMedia("(prefers-reduced-motion: reduce)").matches; } catch { return false; } })();
+const ZINE_OPEN = new Date(2026, 11, 1, 0, 0, 0).getTime();
+const MORE_STOP = new Set(("the and a an of to in on at for is it its i me my we our you your he she him her they them their this that these those " +
+  "with without from into onto upon as by be been being am are was were or but if so than then there here when where what who whom whose why how " +
+  "not no nor do does did done have has had will would could should can may might must shall just only also very too all any each every some such " +
+  "own same other more most much many few one two up down out over under again further once off about above below between through during before after " +
+  "while until because till yet still even ever never always oh like im its dont cant wont ive id youre theyre thats whats lets us").split(" "));
+function mine() { try { return new Set(JSON.parse(localStorage.getItem("ffh-mine") || "[]")); } catch { return new Set(); } }
+function rememberMine(id) { try { const m = mine(); m.add(id); localStorage.setItem("ffh-mine", JSON.stringify([...m])); } catch {} }
+function isRevealed(p, s, now) { return now > p.due || mine().has(s.id); }
+function wordsOf(text) { return (text.toLowerCase().match(/[a-z’']+/g) || []).map(w => w.replace(/[’']/g, "")).filter(w => w.length > 2 && !MORE_STOP.has(w) && !STOP.has(w)); }
+function revealedSubs(now) { return S.subs.filter(s => { const p = PROMPTS.find(x => x.n === s.prompt); return p && now > p.due; }); }
+
+let toastTimer = null;
+function toast(text, cite) {
+  let t = document.querySelector(".toast");
+  if (!t) { t = h("div", { class: "toast", role: "status" }); document.body.append(t); }
+  t.replaceChildren(text, cite ? h("cite", {}, cite) : "");
+  t.hidden = false; clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.hidden = true; }, 5000);
+}
+
+/* ---------- sealed poems (revealed at the deadline) ---------- */
+function poemDetails(s) {
+  return h("details", {},
+    h("summary", {}, h("span", { class: "who" }, avatar(s.poet, 24), h("b", {}, nameOf(s.poet)), s.title ? ` — ${s.title}` : ""), h("span", { class: "muted mono", style: "font-size:.8rem" }, fmtWhen(s.submittedAt))),
+    s.fileName ? h("p", { class: "muted", style: "font-size:.85rem;margin-top:8px" }, `From ${s.fileName}`, s.assetUrl ? " · " : "", s.assetUrl ? h("a", { href: s.assetUrl, target: "_blank", rel: "noopener" }, "open original") : null) : null,
+    h("div", { class: "poem-body" }, s.text || "(No readable text in this file.)"));
+}
+function sealedCard(s, p) {
+  return h("div", { class: "sealed" },
+    h("span", { class: "seal", "aria-hidden": "true" }, "G"),
+    h("div", { style: "min-width:0" },
+      h("div", { class: "who" }, avatar(s.poet, 24), h("b", {}, nameOf(s.poet)), h("span", { class: "muted" }, "sealed a poem")),
+      h("div", { class: "muted mono", style: "font-size:.78rem;margin-top:2px" }, `Opens ${fmtWhen(p.due)}`)));
+}
+function renderPoemList(p, subs) {
+  const now = Date.now();
+  if (!subs.length) return h("p", { class: "muted" }, "No poems yet for this prompt.");
+  return h("div", { class: "poems" }, subs.map(s => {
+    if (now > p.due) return poemDetails(s);
+    if (mine().has(s.id)) { const d = poemDetails(s); d.querySelector("summary").append(h("span", { class: "pill idle" }, "only you can see this")); return d; }
+    return sealedCard(s, p);
+  }));
+}
+
+/* ---------- word cloud ---------- */
+function cloudCounts(subs) {
+  const c = new Map();
+  for (const s of subs) for (const w of wordsOf(s.text || "")) c.set(w, (c.get(w) || 0) + 1);
+  return [...c.entries()].sort((a, b) => b[1] - a[1]).slice(0, 50);
+}
+function buildCloud(subs) {
+  const top = cloudCounts(subs);
+  if (!top.length) return null;
+  const max = top[0][1], min = top[top.length - 1][1];
+  const tones = ["var(--accent)", "var(--warn)", "var(--ok)", "var(--ink)", "var(--roast)"];
+  const shuffled = top.map(x => x).sort((a, b) => hash(a[0]) - hash(b[0]));
+  return h("div", { class: "cloud" }, shuffled.map(([w, n]) => {
+    const t = max === min ? 0.5 : (Math.sqrt(n) - Math.sqrt(min)) / (Math.sqrt(max) - Math.sqrt(min));
+    return h("span", { style: `font-size:${(0.85 + t * 1.9).toFixed(2)}rem;color:${tones[hash(w) % tones.length]}`, title: `${w}: ${n}` }, w);
+  }));
+}
+function renderCloud() {
+  const subs = revealedSubs(Date.now()), card = $("cloud-card");
+  const cloud = buildCloud(subs);
+  card.hidden = !cloud;
+  if (cloud) $("cloud").replaceChildren(cloud);
+}
+
+/* ---------- superlatives ---------- */
+function superlatives(now) {
+  const per = [0, 1, 2, 3].map(i => ({ i, punctual: 0, early: 0, photo: 0, ghost: 0, words: 0, longest: null, counts: new Map() }));
+  for (const p of PROMPTS) for (const r of per) {
+    const c = classify(p, r.i, now);
+    if (c.kind === "early" || c.kind === "ontime") { r.punctual++; r.early += c.diff; }
+    if (c.kind === "photo" || c.kind === "close") r.photo++;
+    if (c.kind === "ghost") r.ghost++;
+  }
+  for (const s of revealedSubs(now)) {
+    const r = per[s.poet]; if (!r) continue;
+    const ws = (s.text || "").split(/\s+/).filter(Boolean).length;
+    r.words += ws;
+    if (!r.longest || ws > r.longest.ws) r.longest = { ws, title: s.title };
+    for (const w of wordsOf(s.text || "")) r.counts.set(w, (r.counts.get(w) || 0) + 1);
+  }
+  const best = (key, tie) => { const m = Math.max(...per.map(key)); if (m <= 0) return null; return per.filter(r => key(r) === m).sort(tie || (() => 0))[0]; };
+  const out = [];
+  const pu = best(r => r.punctual, (a, b) => b.early - a.early);
+  if (pu) out.push({ i: pu.i, title: "Most Punctual", line: `${pu.punctual} of 8 poems on time or early. Insufferable. Iconic.` });
+  const ph = best(r => r.photo);
+  if (ph) out.push({ i: ph.i, title: "Queen of the Photo Finish", line: `${ph.photo} poems turned in with the clock screaming.` });
+  const gh = best(r => r.ghost);
+  if (gh) out.push({ i: gh.i, title: "Most Ghostly", line: `${gh.ghost} prompt${gh.ghost > 1 ? "s" : ""} left haunted and empty.` });
+  const lo = best(r => r.longest ? r.longest.ws : 0);
+  if (lo) out.push({ i: lo.i, title: "Longest Poem", line: `${lo.longest.ws} words${lo.longest.title ? ` in “${lo.longest.title}”` : ""}. Brevity who?` });
+  const pr = best(r => r.words);
+  if (pr) out.push({ i: pr.i, title: "Most Words, Total", line: `${pr.words.toLocaleString()} words across the season.` });
+  const sig = per.map(r => { const top = [...r.counts.entries()].filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1])[0]; return top ? { i: r.i, w: top[0], n: top[1] } : null; }).filter(Boolean);
+  return { awards: out, sig };
+}
+function buildAwards(now) {
+  const { awards, sig } = superlatives(now);
+  if (!awards.length && !sig.length) return h("p", { class: "muted" }, "Awards appear once poems are unsealed.");
+  return h("div", { class: "awards" },
+    awards.map(a => h("div", { class: "award" }, avatar(a.i, 44), h("div", { style: "min-width:0" }, h("div", { class: "eyebrow" }, a.title), h("b", {}, nameOf(a.i)), h("p", { class: "muted", style: "font-size:.9rem" }, a.line)))),
+    sig.length ? h("div", { class: "award" }, h("div", { style: "min-width:0;width:100%" }, h("div", { class: "eyebrow" }, "Signature Words"),
+      sig.map(x => h("div", { class: "who", style: "margin-top:6px" }, avatar(x.i, 22), h("span", {}, nameOf(x.i), ": ", h("b", {}, x.w), h("span", { class: "muted" }, ` ×${x.n}`)))))) : null);
+}
+
+/* ---------- season zine ---------- */
+function renderZineCard() {
+  const now = Date.now(), card = $("zine-card");
+  if (now < ZINE_OPEN) {
+    const days = Math.ceil((ZINE_OPEN - now) / (24 * H));
+    card.replaceChildren(h("div", { class: "cal-head" }, h("h2", {}, "The Season 1 zine"), h("span", { class: "pill idle" }, `${days} day${days === 1 ? "" : "s"} away`)),
+      h("p", { class: "muted", style: "margin-top:8px" }, "On December 1, every poem from the challenge gets bound into one little book, with awards and a word cloud. Bring it to club."));
+    return;
+  }
+  card.replaceChildren(h("div", { class: "cal-head" }, h("h2", {}, "The Season 1 zine"), h("button", { class: "btn", type: "button", onclick: openZine }, "Open the zine")),
+    h("p", { class: "muted", style: "margin:8px 0 18px" }, "Every unsealed poem, bound together. The awards are in."),
+    buildAwards(now));
+}
+function openZine() {
+  const now = Date.now();
+  const close = () => { ov.remove(); document.removeEventListener("keydown", esc); };
+  const esc = e => { if (e.key === "Escape") close(); };
+  const sections = PROMPTS.map(p => {
+    const subs = S.subs.filter(s => s.prompt === p.n).sort((a, b) => a.poet - b.poet || a.submittedAt - b.submittedAt);
+    const firsts = []; const seen = new Set();
+    for (const s of subs.slice().sort((a, b) => b.submittedAt - a.submittedAt)) { if (!seen.has(s.poet)) { seen.add(s.poet); firsts.push(s); } }
+    firsts.sort((a, b) => a.poet - b.poet);
+    return h("section", { class: "zpage" },
+      h("div", { class: "eyebrow" }, `Prompt ${p.n}`), h("h2", {}, p.text),
+      now <= p.due ? h("p", { class: "muted" }, `These poems unseal ${fmtWhen(p.due)}.`) :
+      firsts.length ? firsts.map(s => h("article", { class: "zpoem" },
+        s.title ? h("h3", {}, s.title) : null,
+        h("div", { class: "who muted", style: "font-size:.9rem" }, avatar(s.poet, 26), nameOf(s.poet)),
+        h("div", { class: "poem-body" }, s.text))) : h("p", { class: "muted" }, "A blank page. Somebody owes us a poem."));
+  });
+  const cloud = buildCloud(revealedSubs(now));
+  const ov = h("div", { class: "zine-overlay", role: "dialog", "aria-modal": "true", "aria-label": "Season 1 zine" },
+    h("div", { class: "zine-actions" }, h("button", { class: "btn", type: "button", onclick: () => window.print() }, "Print or save as PDF"), h("button", { class: "btn-ghost", type: "button", onclick: close }, "Close")),
+    h("div", { class: "zine" },
+      h("section", { class: "zpage zcover" },
+        h("div", { class: "eyebrow" }, "Season 1 · Nov 15 – Dec 1, 2026"),
+        h("h1", {}, "Garnet Girls Poetry Club"),
+        h("p", { class: "sub" }, "Eight doors, four keepers, and everything we wrote."),
+        h("div", { class: "zavs" }, [0, 1, 2, 3].map(i => h("div", {}, avatar(i, 64), h("div", { class: "muted", style: "font-size:.85rem;margin-top:6px" }, nameOf(i)))))),
+      h("section", { class: "zpage" }, h("div", { class: "eyebrow" }, "Contents"), h("ol", { class: "ztoc" }, PROMPTS.map(p => h("li", {}, p.text)))),
+      sections,
+      h("section", { class: "zpage" }, h("div", { class: "eyebrow" }, "The awards"), h("h2", {}, "Superlatives"), buildAwards(now)),
+      cloud ? h("section", { class: "zpage" }, h("div", { class: "eyebrow" }, "What we kept writing about"), h("h2", {}, "The word cloud"), cloud) : null,
+      h("section", { class: "zpage zcolophon" }, h("p", { class: "muted" }, "Made with too much love and not nearly enough Google Calendar."))));
+  document.body.append(ov);
+  document.addEventListener("keydown", esc);
+  ov.querySelector(".zine-actions .btn").focus();
+}
+
+/* ---------- stuck? nudges ---------- */
+const NUDGES = [
+  "Write it as a letter to your 8-year-old self.", "Start with a smell.", "Use exactly one question, and make it the last line.",
+  "Write it in second person: “you.”", "Every line must contain a color.", "Begin in the middle of an argument.",
+  "Describe the prompt without ever naming it.", "Write it as instructions, like a recipe.", "Make the title do half the work.",
+  "End on an image, not an idea.", "Write the first line last.", "Put a real object from your room in the second line.",
+  "Six lines. No more. Make them hurt.", "Borrow the rhythm of a song you can’t stop humming.", "Let one word repeat until it changes meaning.",
+  "Write from the point of view of something in your kitchen.", "Start with “I never told anyone…” and then lie.", "Use a list. Poems love lists.",
+  "Write what you’d whisper, not what you’d say.", "Pick a season and refuse to name it.", "Make it a voicemail you never sent.",
+  "Every stanza starts with the same word.", "Write it in one breath, then cut half.", "Address it to a stranger you saw this week.",
+];
+function nudge() { const n = $("nudge"); let t; do { t = NUDGES[Math.floor(Math.random() * NUDGES.length)]; } while (t === n.textContent && NUDGES.length > 1); n.textContent = t; n.hidden = false; }
+
+/* ---------- falling leaves ---------- */
+const LEAF_COLORS = ["#8E1B33", "#E9A93B", "#B95E17", "#56702A", "#C2405A"];
+const LEAF_SVG = c => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 C16 6 20 8 20 13 C20 18 16 21 12 22 C8 21 4 18 4 13 C4 8 8 6 12 2 Z" fill="${c}"/><path d="M12 5 V21 M12 11 L8 8 M12 11 L16 8 M12 15 L8 12.5 M12 15 L16 12.5" stroke="rgba(0,0,0,.25)" stroke-width=".8" fill="none"/></svg>`;
+const leaves = [];
+let leafBox = null, lastFrame = 0;
+function leafTarget() {
+  const now = Date.now(), p = promptFor(now), small = innerWidth < 720;
+  let n = small ? 4 : 7;
+  if (now >= p.assigned && now < p.due && p.due - now < 6 * H) n += Math.round((small ? 8 : 16) * (1 - (p.due - now) / (6 * H)));
+  return n;
+}
+function spawnLeaf(top) {
+  const el = h("button", { class: "leaf", type: "button", "aria-label": "A falling leaf. Click it for a line of poetry." });
+  el.innerHTML = LEAF_SVG(LEAF_COLORS[Math.floor(Math.random() * LEAF_COLORS.length)]);
+  const size = 16 + Math.random() * 14;
+  el.style.width = el.style.height = size + "px";
+  el.addEventListener("click", () => {
+    const poem = POEMS[Math.floor(Math.random() * POEMS.length)];
+    const lines = poem.x.split("\n").filter(l => l.trim().length > 6);
+    toast(lines[Math.floor(Math.random() * lines.length)], `${poem.t} — ${poem.a}`);
+  });
+  leafBox.append(el);
+  leaves.push({ el, x: Math.random() * innerWidth, y: top ? -30 - Math.random() * innerHeight * 0.6 : Math.random() * innerHeight, vy: 18 + Math.random() * 26, ph: Math.random() * 6.28, amp: 20 + Math.random() * 40, rot: Math.random() * 360, vr: -40 + Math.random() * 80 });
+}
+function leafFrame(t) {
+  const dt = Math.min(0.05, (t - (lastFrame || t)) / 1000); lastFrame = t;
+  const target = leafTarget();
+  for (let k = leaves.length - 1; k >= 0; k--) {
+    const L = leaves[k];
+    L.y += L.vy * dt; L.ph += dt * 0.9; L.rot += L.vr * dt;
+    if (L.y > innerHeight + 40) {
+      if (leaves.length > target) { L.el.remove(); leaves.splice(k, 1); continue; }
+      L.y = -30; L.x = Math.random() * innerWidth;
+    }
+    L.el.style.transform = `translate(${(L.x + Math.sin(L.ph) * L.amp).toFixed(1)}px, ${L.y.toFixed(1)}px) rotate(${L.rot.toFixed(0)}deg)`;
+  }
+  if (leaves.length < target) spawnLeaf(true);
+  requestAnimationFrame(leafFrame);
+}
+function startLeaves() {
+  if (REDUCED) return;
+  leafBox = h("div", { class: "leaves", "aria-hidden": "false" });
+  document.body.append(leafBox);
+  for (let k = 0; k < leafTarget(); k++) spawnLeaf(false);
+  requestAnimationFrame(leafFrame);
+}
+
+/* ---------- fireplace ambience ---------- */
+const fire = { ctx: null, gain: null, crackle: null, timer: null, on: false };
+function fireLevel() {
+  const now = Date.now(), p = promptFor(now);
+  if (now >= p.assigned && now < p.due && p.due - now < H) return 0.12 + 0.5 * (1 - (p.due - now) / H);
+  return 0.12;
+}
+function startFire() {
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+  const ctx = fire.ctx || new AC(); fire.ctx = ctx;
+  if (ctx.state === "suspended") ctx.resume();
+  const gain = ctx.createGain(); gain.gain.value = 0; gain.connect(ctx.destination); fire.gain = gain;
+  const len = ctx.sampleRate * 3, buf = ctx.createBuffer(1, len, ctx.sampleRate), d = buf.getChannelData(0);
+  let last = 0; for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.2; }
+  const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+  const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 700;
+  src.connect(lp); lp.connect(gain); src.start(); fire.src = src;
+  const clen = Math.floor(ctx.sampleRate * 0.03), cbuf = ctx.createBuffer(1, clen, ctx.sampleRate), cd = cbuf.getChannelData(0);
+  for (let i = 0; i < clen; i++) cd[i] = (Math.random() * 2 - 1) * Math.exp(-i / (clen / 6));
+  const hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 1800; hp.connect(gain);
+  fire.timer = setInterval(() => {
+    const lvl = fireLevel();
+    gain.gain.setTargetAtTime(lvl, ctx.currentTime, 1.5);
+    if (Math.random() < 0.25 + lvl) {
+      const b = ctx.createBufferSource(); b.buffer = cbuf; const g = ctx.createGain(); g.gain.value = 0.3 + Math.random() * 0.9;
+      b.connect(g); g.connect(hp); b.start(ctx.currentTime + Math.random() * 0.1);
+    }
+  }, 140);
+  return true;
+}
+function stopFire() {
+  clearInterval(fire.timer);
+  if (fire.gain && fire.ctx) { fire.gain.gain.setTargetAtTime(0, fire.ctx.currentTime, 0.3); const s = fire.src; setTimeout(() => { try { s.stop(); } catch {} }, 1200); }
+}
+function toggleFire() {
+  const b = $("fire");
+  fire.on = !fire.on;
+  if (fire.on && !startFire()) fire.on = false;
+  if (!fire.on) stopFire();
+  b.setAttribute("aria-pressed", String(fire.on));
+  b.textContent = fire.on ? "Put out the fire" : "Light the fireplace";
+}
+
+/* ---------- secret word: pool ---------- */
+let typed = "";
+function poolParty() {
+  if (document.querySelector(".pool")) return;
+  const pool = h("div", { class: "pool", "aria-hidden": "true" }, h("div", { class: "wave" }),
+    h("div", { class: "pool-sign" }, "Pool’s open"),
+    [0, 1, 2, 3].map(i => { const f = h("div", { class: "floaty", style: `left:${12 + i * 22}%;animation-delay:${i * -0.6}s` }, avatar(i, 52), h("div", { class: "tube", style: `border-color:${["#F2B544", "#E46A82", "#7FC4D8", "#AAC66B"][i]}` })); return f; }));
+  document.body.append(pool);
+  requestAnimationFrame(() => pool.classList.add("on"));
+  setTimeout(() => { pool.classList.remove("on"); setTimeout(() => pool.remove(), 1400); }, REDUCED ? 3000 : 7000);
+}
+document.addEventListener("keydown", e => {
+  const t = e.target; if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+  if (e.key.length !== 1) return;
+  typed = (typed + e.key.toLowerCase()).slice(-4);
+  if (typed === "pool") { typed = ""; poolParty(); }
+});
 
 /* ---------- boot ---------- */
 S.sel = promptFor(Date.now()).n;
 drawPoem();
 renderLegend();
 renderAll();
+startLeaves();
+$("fire").addEventListener("click", toggleFire);
+$("stuck").addEventListener("click", nudge);
 let lastMinute = -1;
 setInterval(() => {
   renderNow();
   const m = Math.floor(Date.now() / MIN);
-  if (m !== lastMinute) { lastMinute = m; renderCal(); renderShame(); if (!document.activeElement || !$("detail").contains(document.activeElement)) renderDetail(); }
+  if (m !== lastMinute) { lastMinute = m; renderCal(); renderShame(); renderCloud(); renderZineCard(); if (!document.activeElement || !$("detail").contains(document.activeElement)) renderDetail(); }
 }, 1000);
 
 (async () => {
@@ -684,7 +1018,7 @@ setInterval(() => {
     renderDetail(); return;
   }
   S.db = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-  const refresh = () => { const a = document.activeElement; renderNow(); renderCal(); renderShame(); if (!a || !$("detail").contains(a) || a.tagName === "BUTTON") renderDetail(); };
+  const refresh = () => { const a = document.activeElement; renderNow(); renderCal(); renderShame(); renderCloud(); renderZineCard(); if (!a || !$("detail").contains(a) || a.tagName === "BUTTON") renderDetail(); };
   async function load() {
     const { data, error } = await S.db.from("submissions").select("*").order("submitted_at");
     if (error) { banner("Couldn’t load poems right now. Reload the page to try again."); return; }
