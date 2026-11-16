@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Eight prompts, four poets, forty-eight hours each.">
+<meta name="theme-color" content="#6D1528">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M16 2 28 11 23 29H9L4 11z%22 fill=%22%238E1B33%22/%3E%3Cpath d=%22M16 2 21 11H11z%22 fill=%22%23C2405A%22/%3E%3C/svg%3E">
+<title>Garnet Girls Poetry Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column "club notebook" — featured words strip, current-prompt card, 3-week calendar, prompt detail with roster + submissions, hall of shame. */
+/* Layout: one column "club notebook" — word bank, current-prompt card, 3-week calendar, prompt detail with roster + submissions, hall of shame.
+   Palette: garnet, oxblood, marigold and olive — autumn in a jewel box. */
+:root {
+  --paper: #F7EEE8; --card: #FFFBF8; --ink: #3B0F1B; --muted: #7D5A60; --line: #EAD5CE;
+  --accent: #8E1B33; --accent-ink: #FFF7F3; --hi: #F2B544; --hi-ink: #3B0F1B;
+  --roast: #B4241E; --ok: #56702A; --warn: #B95E17;
+  --tintA: #F6DFDB; --tintB: #F8E7D0; --today: #8E1B33; --hero-bg: #6D1528; --hero-fg: #FCEFE8;
+  --f-display: "Young Serif", Georgia, "Times New Roman", serif;
+  --f-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #1B0C11; --card: #27131A; --ink: #F6E7E1; --muted: #C4A3A4; --line: #4A2631;
+  --accent: #E46A82; --accent-ink: #1B0C11; --hi: #E9A93B; --hi-ink: #3B0F1B;
+  --roast: #FF8070; --ok: #AAC66B; --warn: #F0A25A;
+  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #1B0C11; --card: #27131A; --ink: #F6E7E1; --muted: #C4A3A4; --line: #4A2631;
+  --accent: #E46A82; --accent-ink: #1B0C11; --hi: #E9A93B; --hi-ink: #3B0F1B;
+  --roast: #FF8070; --ok: #AAC66B; --warn: #F0A25A;
+  --tintA: #3A1621; --tintB: #3A2415; --today: #E46A82; --hero-bg: #74182C; --hero-fg: #FCEFE8; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+.now { background-image: radial-gradient(120% 140% at 100% 0%, rgba(242,181,68,.18), transparent 55%); }
+body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: clamp(15px, 0.6vw + 9px, 18px); line-height: 1.5; }
+.wrap { max-width: 1200px; width: 100%; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 28px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2.1rem, 5.5vw, 4.4rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.2rem; }
+p { margin: 0; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-family: var(--f-mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 6px; padding: 10px 18px; font-weight: 700; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); border-radius: 6px; padding: 6px 12px; font-size: 0.9rem; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 22px; }
+
+/* header */
+header { display: flex; flex-direction: column; gap: 10px; }
+header .sub { color: var(--muted); max-width: 52ch; font-family: var(--f-display); font-size: 1.15rem; line-height: 1.55; font-style: italic; }
+
+/* featured words */
+.muse { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; }
+.muse .words { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.word { font-family: var(--f-display); font-size: 1.35rem; background: var(--hi); color: var(--hi-ink); padding: 2px 10px; border-radius: 3px; transform: rotate(var(--r, 0deg)); animation: drop .5s ease-out both; animation-delay: var(--d, 0s); }
+@keyframes drop { from { transform: translateY(-8px) rotate(var(--r, 0deg)); opacity: .4; } to { transform: rotate(var(--r, 0deg)); opacity: 1; } }
+.excerpt { font-family: var(--f-display); font-size: 1.02rem; line-height: 1.6; white-space: pre-wrap; border-left: 2px solid var(--line); padding-left: 16px; min-width: 0; }
+.excerpt mark { background: var(--hi); color: var(--hi-ink); padding: 0 2px; }
+.excerpt cite { display: block; margin-top: 10px; font-family: var(--f-mono); font-style: normal; font-size: 0.8rem; color: var(--muted); }
+.muse-foot { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 16px; }
+
+/* now card */
+.now { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 24px; align-items: center; background: var(--hero-bg); color: var(--hero-fg); border: 0; }
+.now .eyebrow { color: var(--hero-fg); opacity: .72; }
+.now .prompt-text { font-family: var(--f-display); font-size: clamp(1.5rem, 4vw, 2.2rem); line-height: 1.2; margin-top: 6px; }
+.now .note { margin-top: 8px; opacity: .8; font-size: .95rem; }
+.clock { text-align: right; }
+.clock .big { font-family: var(--f-mono); font-size: clamp(1.8rem, 5vw, 2.6rem); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+/* calendar */
+.cal-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-top: 14px; }
+.dow { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 6px 4px; }
+.day { min-height: 110px; background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 4px; text-align: left; min-width: 0; }
+.day.inwin { cursor: pointer; }
+.day.wA { background: var(--tintA); }
+.day.wB { background: var(--tintB); }
+.day.sel { outline: 2.5px solid var(--accent); outline-offset: -1px; }
+.day .num { font-family: var(--f-mono); font-size: .85rem; display: flex; justify-content: space-between; gap: 4px; }
+.day.today .num b { background: var(--today); color: var(--accent-ink); border-radius: 3px; padding: 0 5px; font-weight: 500; }
+.chip { font-size: .78rem; line-height: 1.25; border-radius: 4px; padding: 3px 6px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.chip.due { background: var(--ink); color: var(--paper); }
+.chip.drop { border: 1px dashed var(--muted); color: var(--muted); }
+.dots { display: flex; gap: 3px; margin-top: auto; }
+.dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--muted); }
+.dot.on { background: var(--ok); border-color: var(--ok); }
+.dot.late { background: var(--roast); border-color: var(--roast); }
+
+/* detail */
+.detail { display: flex; flex-direction: column; gap: 22px; }
+.detail-top { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-start; }
+.detail-top .when { font-family: var(--f-mono); font-size: .85rem; color: var(--muted); text-align: right; }
+.roster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.poet { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.poet-name { font-weight: 700; display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pill { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
+.pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.bad { color: var(--roast); } .pill.idle { color: var(--muted); }
+.roast { font-style: italic; color: var(--roast); }
+.roast.kind { color: var(--ok); }
+.roast.pending { color: var(--muted); }
+
+form.submit { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--line); padding-top: 20px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; }
+.row > * { flex: 1 1 200px; min-width: 0; }
+label { font-size: .85rem; font-weight: 700; display: flex; flex-direction: column; gap: 4px; }
+input[type=text], select, textarea { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; width: 100%; }
+textarea { min-height: 200px; font-family: var(--f-display); line-height: 1.6; resize: vertical; }
+.tabs { display: flex; gap: 6px; }
+.tab { background: transparent; border: 1.5px solid var(--line); border-radius: 6px; padding: 6px 14px; color: var(--muted); }
+.tab[aria-selected="true"] { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.drop-zone { border: 2px dashed var(--line); border-radius: 8px; padding: 26px 16px; text-align: center; color: var(--muted); }
+.drop-zone.over { border-color: var(--accent); color: var(--accent); }
+.status-line { font-size: .9rem; min-height: 1.4em; }
+.status-line.err { color: var(--roast); }
+
+.poems { display: flex; flex-direction: column; gap: 10px; }
+.poems details { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.poems summary { cursor: pointer; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.poem-body { font-family: var(--f-display); white-space: pre-wrap; line-height: 1.7; margin-top: 12px; overflow-wrap: anywhere; }
+
+/* shame */
+.shame-wrap { overflow-x: auto; }
+table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.shame th, .shame td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.shame th { font-family: var(--f-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+.shame td.n { font-family: var(--f-mono); }
+.crown { color: var(--roast); font-family: var(--f-mono); font-size: .75rem; }
+
+.banner { border: 1.5px solid var(--warn); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: .92rem; }
+
+@media (max-width: 720px) {
+  .muse, .now { grid-template-columns: minmax(0, 1fr); }
+  .clock { text-align: left; }
+  .roster { grid-template-columns: minmax(0, 1fr); }
+  .day { min-height: 68px; padding: 3px; gap: 3px; }
+  .day .num span { display: none; }
+  .chip { font-size: .66rem; padding: 2px 3px; }
+  .chip.drop { display: none; }
+  .dot { width: 6px; height: 6px; }
+  .cal { gap: 3px; }
+  .dow { padding: 0 2px 4px; font-size: .62rem; letter-spacing: .04em; }
+  .chip .long { display: none; }
+  .detail-top .when { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) { .word { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">16-Day Challenge · Nov 15 – Dec 1, 2026</span>
+    <h1>Garnet Girls Poetry Club</h1>
+    <p class="sub">Eight legs for the doors. Four seasons for the keepers. Each door opens as a day dies and shuts two deaths later, a minute shy of tomorrow. Whatever comes after is remembered.</p>
+  </header>
+
+  <section class="card muse" aria-labelledby="muse-h">
+    <div>
+      <span class="eyebrow" id="muse-h">Word bank · from a random poem</span>
+      <div class="words" id="words"></div>
+      <div class="muse-foot">
+        <button class="btn-ghost" id="reshuffle" type="button">Draw another poem</button>
+        <span class="muted" style="font-size:.88rem">Sneak one into your poem for bonus glory.</span>
+      </div>
+    </div>
+    <blockquote class="excerpt" id="excerpt" style="margin:0"></blockquote>
+  </section>
+
+  <section class="card now" id="now" aria-live="polite"></section>
+
+  <div id="banner" class="banner" hidden></div>
+
+  <section aria-labelledby="cal-h">
+    <div class="cal-head">
+      <h2 id="cal-h">The calendar</h2>
+      <span class="muted" style="font-size:.9rem">Click a day to open its prompt. Dots are Hattie, Marina, Avery and Lauren, in that order.</span>
+    </div>
+    <div class="cal" id="cal"></div>
+  </section>
+
+  <section class="card detail" id="detail" aria-labelledby="detail-h"></section>
+
+  <section class="card" id="shame-card" aria-labelledby="shame-h" hidden>
+    <div class="cal-head">
+      <h2 id="shame-h">Hall of Shame</h2>
+    </div>
+    <div class="shame-wrap" style="margin-top:14px">
+      <table class="shame">
+        <thead><tr><th>Poet</th><th>Poems</th><th>Early birds</th><th>Photo finishes</th><th>Late</th><th>Ghosted</th><th>Hours late</th></tr></thead>
+        <tbody id="shame"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+(() => {
+const H = 3600e3, MIN = 60e3;
+const RAW = [
+  { n: 1, text: "metallic voices / marble echo / prism opal / wavering light", note: "You don't have to use all of this in the poem.", m: 10, d: 17 },
+  { n: 2, text: "3am", m: 10, d: 19 },
+  { n: 3, text: "worst day", m: 10, d: 21 },
+  { n: 4, text: "control / care", m: 10, d: 23 },
+  { n: 5, text: "best day", m: 10, d: 25 },
+  { n: 6, text: "divination / dreams", m: 10, d: 27 },
+  { n: 7, text: "Ohh my God", m: 10, d: 29 },
+  { n: 8, text: "family heirlooms", note: "Due by poetry club.", m: 11, d: 1 },
+];
+const PROMPTS = RAW.map(p => { const due = new Date(2026, p.m, p.d, 23, 59, 59, 999).getTime(); return { ...p, due, assigned: due - 48 * H }; });
+
+const POEMS = [
+  { t: "“Hope” is the thing with feathers", a: "Emily Dickinson", x: "“Hope” is the thing with feathers -\nThat perches in the soul -\nAnd sings the tune without the words -\nAnd never stops - at all -" },
+  { t: "Nothing Gold Can Stay", a: "Robert Frost", x: "Nature’s first green is gold,\nHer hardest hue to hold.\nHer early leaf’s a flower;\nBut only so an hour.\nThen leaf subsides to leaf.\nSo Eden sank to grief,\nSo dawn goes down to day.\nNothing gold can stay." },
+  { t: "The Tyger", a: "William Blake", x: "Tyger Tyger, burning bright,\nIn the forests of the night;\nWhat immortal hand or eye,\nCould frame thy fearful symmetry?" },
+  { t: "Bright star", a: "John Keats", x: "Bright star, would I were stedfast as thou art—\nNot in lone splendour hung aloft the night\nAnd watching, with eternal lids apart,\nLike nature’s patient, sleepless Eremite," },
+  { t: "Ozymandias", a: "Percy Bysshe Shelley", x: "I met a traveller from an antique land,\nWho said—“Two vast and trunkless legs of stone\nStand in the desert. . . . Near them, on the sand,\nHalf sunk a shattered visage lies, whose frown,\nAnd wrinkled lip, and sneer of cold command," },
+  { t: "A Noiseless Patient Spider", a: "Walt Whitman", x: "A noiseless patient spider,\nI mark’d where on a little promontory it stood isolated,\nMark’d how to explore the vacant vast surrounding,\nIt launch’d forth filament, filament, filament, out of itself,\nEver unreeling them, ever tirelessly speeding them." },
+  { t: "Pied Beauty", a: "Gerard Manley Hopkins", x: "Glory be to God for dappled things –\nFor skies of couple-colour as a brinded cow;\nFor rose-moles all in stipple upon trout that swim;\nFresh-firecoal chestnut-falls; finches’ wings;" },
+  { t: "Remember", a: "Christina Rossetti", x: "Remember me when I am gone away,\nGone far away into the silent land;\nWhen you can no more hold me by the hand,\nNor I half turn to go yet turning stay." },
+  { t: "The Lake Isle of Innisfree", a: "W. B. Yeats", x: "I will arise and go now, and go to Innisfree,\nAnd a small cabin build there, of clay and wattles made;\nNine bean-rows will I have there, a hive for the honey-bee,\nAnd live alone in the bee-loud glade." },
+  { t: "Because I could not stop for Death", a: "Emily Dickinson", x: "Because I could not stop for Death –\nHe kindly stopped for me –\nThe Carriage held but just Ourselves –\nAnd Immortality." },
+  { t: "There Will Come Soft Rains", a: "Sara Teasdale", x: "There will come soft rains and the smell of the ground,\nAnd swallows circling with their shimmering sound;\nAnd frogs in the pools singing at night,\nAnd wild plum trees in tremulous white;" },
+  { t: "I Wandered Lonely as a Cloud", a: "William Wordsworth", x: "I wandered lonely as a cloud\nThat floats on high o’er vales and hills,\nWhen all at once I saw a crowd,\nA host, of golden daffodils;" },
+  { t: "Dreams", a: "Langston Hughes", x: "Hold fast to dreams\nFor if dreams die\nLife is a broken-winged bird\nThat cannot fly." },
+  { t: "The Eagle", a: "Alfred, Lord Tennyson", x: "He clasps the crag with crooked hands;\nClose to the sun in lonely lands,\nRing’d with the azure world, he stands.\nThe wrinkled sea beneath him crawls;\nHe watches from his mountain walls,\nAnd like a thunderbolt he falls." },
+];
+const STOP = new Set("about above after again against their there these those which while would could should where whose with without into from that this have what when your yours then than them they were been being only ever over under upon thou thee thy art".split(" "));
+
+const ROASTS = {
+  early: ["{name} turned this in {early} early. Teacher’s pet energy. We respect it. We are also watching you.",
+          "{early} early? Suspicious, {name}. Was this written in a past life?",
+          "{name} submitted so early the prompt hadn’t finished loading. Show-off."],
+  ontime: ["On time and drama-free. Who hurt you, {name}?",
+           "{name} submitted like a functioning adult. Boring. Lovely. Boring.",
+           "Punctual, composed, emotionally available. {name}, are you okay?"],
+  close: ["{name} treats a 48-hour window like a dare.",
+          "{early} to spare, which for {name} counts as meal prep.",
+          "{name}’s muse only clocks in after the dread does."],
+  photo: ["{name} submitted with {early} left. The poem’s true subject is adrenaline.",
+          "{name} hit submit so close to midnight that Cinderella filed a complaint.",
+          "{name}’s process: 47 hours of vibes, 1 hour of panic, 0 regrets (lie)."],
+  late1: ["{late} late. Technically a poem, technically late, technically still our friend, {name}.",
+          "Close only counts in horseshoes and hand grenades, {name}. Not in poetry."],
+  late: ["{name} turned this in {late} late. Emily Dickinson got published faster, and she was dead.",
+         "{name} heard “48 hours” and assumed it was a suggestion.",
+         "{late} late. The prompt was “{prompt},” {name}, not “make everyone wait.”",
+         "{name}’s relationship with deadlines is free verse: no structure, no rules, no shame."],
+  late24: ["{late} late. {name} isn’t submitting poems anymore, {name} is submitting archival documents.",
+           "By the time {name} turned this in, it qualified as a family heirloom.",
+           "{late} late. Carbon dating was required to verify {name}’s submission."],
+  ghost: ["{name} has left the chat. And the poem. Possibly the state.",
+          "No poem from {name}. A bold avant-garde piece titled “Nothing.”",
+          "{name}’s submission is so minimalist it is invisible.",
+          "Missing: one poem. Last seen in {name}’s Notes app, untitled, three lines long."],
+  ticking: ["{name}, the clock is ticking louder than your muse.",
+            "Tick tock, {name}. The blank page is winning.",
+            "{name} has {left} left and zero poems. Thrilling stuff."],
+};
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v; else if (k.startsWith("on")) el.addEventListener(k.slice(2), v); else if (k === "style") el.style.cssText = v; else el.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : String(k));
+  return el;
+}
+function hash(s) { let x = 2166136261; for (const c of s) { x ^= c.charCodeAt(0); x = Math.imul(x, 16777619); } return x >>> 0; }
+function fmtDur(ms) {
+  ms = Math.abs(ms); const d = Math.floor(ms / (24 * H)), hr = Math.floor(ms % (24 * H) / H), m = Math.floor(ms % H / MIN);
+  if (d) return `${d}d ${hr}h`; if (hr) return `${hr}h ${m}m`; return `${Math.max(m, 1)} min`;
+}
+function fmtWhen(t) { return new Date(t).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); }
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch { return null; } }
+
+/* ---------- state ---------- */
+const S = { names: ["Hattie", "Marina", "Avery", "Lauren", "Unknown"], subs: [], db: null, ready: false, sel: null, mode: "text", file: null, busy: false };
+
+function promptFor(now) { return PROMPTS.find(p => now < p.due) || PROMPTS[PROMPTS.length - 1]; }
+function nameOf(i) { return S.names[i] || "Unknown"; }
+
+function classify(p, poet, now) {
+  const mine = S.subs.filter(s => s.prompt === p.n && s.poet === poet).sort((a, b) => a.submittedAt - b.submittedAt);
+  const first = mine[0];
+  if (first) {
+    const diff = p.due - first.submittedAt;
+    let kind, label, cls;
+    if (diff < 0) { kind = -diff > 24 * H ? "late24" : -diff > H ? "late" : "late1"; label = `Late ${fmtDur(diff)}`; cls = "bad"; }
+    else if (diff < H) { kind = "photo"; label = "Photo finish"; cls = "warn"; }
+    else if (diff < 6 * H) { kind = "close"; label = "Cutting it close"; cls = "warn"; }
+    else if (diff < 24 * H) { kind = "ontime"; label = "On time"; cls = "ok"; }
+    else { kind = "early"; label = `${fmtDur(diff)} early`; cls = "ok"; }
+    return { kind, label, cls, first, count: mine.length, diff };
+  }
+  if (now > p.due) return { kind: "ghost", label: "Ghosted", cls: "bad", diff: p.due - now };
+  if (now >= p.assigned) return { kind: "writing", label: "Writing…", cls: "idle" };
+  return { kind: "soon", label: "Not open yet", cls: "idle" };
+}
+function canned(kind, p, poet, diff) {
+  const list = ROASTS[kind]; if (!list) return "";
+  const line = list[hash(kind + p.n + ":" + poet) % list.length];
+  const d = fmtDur(diff || 0);
+  return line.replaceAll("{name}", nameOf(poet)).replaceAll("{prompt}", p.text).replaceAll("{early}", d).replaceAll("{late}", d).replaceAll("{left}", d);
+}
+
+/* ---------- featured words ---------- */
+let lastPoem = -1;
+function drawPoem() {
+  let i; do { i = Math.floor(Math.random() * POEMS.length); } while (i === lastPoem && POEMS.length > 1);
+  lastPoem = i; const poem = POEMS[i];
+  const cands = [...new Set((poem.x.match(/[A-Za-z’'-]+/g) || []).map(w => w.replace(/[’']s$/, "")).filter(w => w.length >= 4 && !STOP.has(w.toLowerCase())))];
+  for (let k = cands.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [cands[k], cands[j]] = [cands[j], cands[k]]; }
+  const picked = cands.slice(0, 6);
+  const words = $("words"); words.replaceChildren(...picked.map((w, k) => h("span", { class: "word", style: `--r:${(Math.random() * 5 - 2.5).toFixed(1)}deg;--d:${k * 0.07}s` }, w.toLowerCase())));
+  const set = new Set(picked.map(w => w.toLowerCase()));
+  const ex = $("excerpt"); ex.replaceChildren();
+  for (const part of poem.x.split(/([A-Za-z’'-]+)/)) {
+    const base = part.replace(/[’']s$/, "").toLowerCase();
+    ex.append(set.has(base) ? h("mark", {}, part) : part);
+  }
+  ex.append(h("cite", {}, `from “${poem.t}” — ${poem.a}`));
+}
+$("reshuffle").addEventListener("click", drawPoem);
+
+/* ---------- now card ---------- */
+function renderNow() {
+  const now = Date.now(), p = promptFor(now), el = $("now");
+  const open = now >= p.assigned, over = now > p.due;
+  const label = over ? "The season is over" : open ? `Prompt ${p.n} of 8 · live now` : `Prompt ${p.n} of 8 · drops ${fmtWhen(p.assigned)}`;
+  const target = open ? p.due : p.assigned + 1;
+  const left = target - now;
+  const fmtClock = ms => { if (ms <= 0) return "00:00:00"; const t = Math.floor(ms / 1000); const hh = Math.floor(t / 3600), mm = Math.floor(t % 3600 / 60), ss = t % 60; return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`; };
+  el.replaceChildren(
+    h("div", {}, h("span", { class: "eyebrow" }, label), h("p", { class: "prompt-text" }, p.text), p.note ? h("p", { class: "note" }, p.note) : null),
+    h("div", { class: "clock" }, h("span", { class: "eyebrow" }, over ? "Final poem was due" : open ? "Time left" : "Opens in"),
+      h("div", { class: "big" }, over ? fmtWhen(p.due) : fmtClock(left)),
+      h("div", { class: "eyebrow", style: "margin-top:4px" }, `Due ${fmtWhen(p.due)}`)));
+}
+
+/* ---------- calendar ---------- */
+function renderCal() {
+  const cal = $("cal"), now = Date.now(); cal.replaceChildren();
+  for (const d of ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]) cal.append(h("div", { class: "dow" }, d));
+  const start = new Date(2026, 10, 15);
+  for (let k = 0; k < 21; k++) {
+    const day = new Date(start); day.setDate(start.getDate() + k);
+    const end = new Date(day); end.setHours(23, 59, 59, 999); const endT = end.getTime();
+    const owner = PROMPTS.find(p => p.assigned < endT && endT <= p.due);
+    const dueP = PROMPTS.find(p => p.due === endT);
+    const dropP = PROMPTS.find(p => p.assigned === endT);
+    const isToday = now >= day.getTime() && now <= endT;
+    const cls = ["day", owner ? "inwin" : "", owner ? (owner.n % 2 ? "wA" : "wB") : "", isToday ? "today" : "", owner && S.sel === owner.n ? "sel" : ""].join(" ");
+    const showMonth = k === 0 || day.getDate() === 1;
+    const kids = [h("div", { class: "num" }, h("b", {}, day.getDate()), showMonth ? h("span", { class: "muted" }, day.toLocaleString(undefined, { month: "short" })) : null)];
+    if (dueP) kids.push(h("span", { class: "chip due" }, `№${dueP.n} due`, h("span", { class: "long" }, ` · ${dueP.text}`)));
+    if (dropP && (!owner || owner.n !== dropP.n)) kids.push(h("span", { class: "chip drop" }, `№${dropP.n} drops`, h("span", { class: "long" }, " tonight")));
+    if (dueP) kids.push(h("div", { class: "dots", "aria-hidden": "true" }, [0, 1, 2, 3].map(i => {
+      const c = classify(dueP, i, now); return h("span", { class: "dot " + (c.first ? (c.diff < 0 ? "late" : "on") : "") });
+    })));
+    const attrs = { class: cls };
+    if (owner || dropP) {
+      const target = owner || dropP;
+      Object.assign(attrs, { type: "button", "aria-label": `${day.toDateString()}: prompt ${target.n}, ${target.text}`, onclick: () => { S.sel = target.n; renderAll(); $("detail").scrollIntoView({ behavior: "smooth", block: "start" }); } });
+      if (dropP && !owner) attrs.class += " inwin";
+      cal.append(h("button", attrs, kids));
+    } else cal.append(h("div", attrs, kids));
+  }
+}
+
+/* ---------- detail ---------- */
+function renderDetail() {
+  const now = Date.now(), p = PROMPTS.find(x => x.n === S.sel), el = $("detail");
+  const roster = h("div", { class: "roster" }, [0, 1, 2, 3].map(i => {
+    const c = classify(p, i, now);
+    let roastEl = null;
+    if (c.first) {
+      const txt = c.first.roast || canned(c.kind, p, i, c.diff);
+      const pending = !c.first.roast && c.first.roastPending;
+      roastEl = h("p", { class: "roast" + (c.kind === "early" || c.kind === "ontime" ? " kind" : "") + (pending ? " pending" : "") }, pending ? "Claude is sharpening a roast…" : txt);
+    } else if (c.kind === "ghost") roastEl = h("p", { class: "roast" }, canned(c.kind, p, i, c.diff));
+    return h("div", { class: "poet" },
+      h("div", { class: "poet-name" }, nameOf(i), h("span", { class: "pill " + c.cls }, c.label)),
+      c.first ? h("span", { class: "muted mono", style: "font-size:.8rem" }, `Submitted ${fmtWhen(c.first.submittedAt)}${c.count > 1 ? ` · ${c.count} versions` : ""}`) : null,
+      roastEl);
+  }));
+
+  const subs = S.subs.filter(s => s.prompt === p.n).sort((a, b) => a.submittedAt - b.submittedAt);
+  const poems = h("div", { class: "poems" }, subs.length ? subs.map(s => h("details", {},
+    h("summary", {}, h("span", {}, h("b", {}, nameOf(s.poet)), s.title ? ` — ${s.title}` : ""), h("span", { class: "muted mono", style: "font-size:.8rem" }, fmtWhen(s.submittedAt))),
+    s.fileName ? h("p", { class: "muted", style: "font-size:.85rem;margin-top:8px" }, `From ${s.fileName}`, s.assetUrl ? " · " : "", s.assetUrl ? h("a", { href: s.assetUrl, target: "_blank", rel: "noopener" }, "open original") : null) : null,
+    h("div", { class: "poem-body" }, s.text || "(No readable text in this file.)"))) : h("p", { class: "muted" }, "No poems yet for this prompt."));
+
+  el.replaceChildren(
+    h("div", { class: "detail-top" },
+      h("div", {}, h("span", { class: "eyebrow" }, `Prompt ${p.n} of 8`), h("h2", { id: "detail-h", style: "margin-top:4px" }, p.text), p.note ? h("p", { class: "muted", style: "margin-top:6px" }, p.note) : null),
+      h("div", { class: "when" }, `Drops ${fmtWhen(p.assigned)}`, h("br"), h("b", {}, `Due ${fmtWhen(p.due)}`))),
+    roster,
+    h("div", {}, h("h3", { style: "margin-bottom:10px" }, `The poems (${subs.length})`), poems),
+    buildForm(p));
+}
+
+function buildForm(p) {
+  const last = store("ffh-poet");
+  const sel = h("select", { id: "f-poet" }, [0, 1, 2, 3, 4].map(i => { const o = h("option", { value: i }, nameOf(i)); if (String(i) === last) o.selected = true; return o; }));
+  const title = h("input", { type: "text", id: "f-title", placeholder: "Untitled", maxlength: "120" });
+  const tabText = h("button", { class: "tab", type: "button", role: "tab", "aria-selected": String(S.mode === "text"), onclick: () => { S.mode = "text"; renderDetail(); } }, "Type it");
+  const tabFile = h("button", { class: "tab", type: "button", role: "tab", "aria-selected": String(S.mode === "file"), onclick: () => { S.mode = "file"; renderDetail(); } }, "Upload a file");
+  let body;
+  if (S.mode === "text") {
+    body = h("textarea", { id: "f-text", placeholder: "Paste or write your poem here. Line breaks are kept." });
+    const draft = store("ffh-draft-" + p.n); if (draft) body.value = draft;
+    body.addEventListener("input", () => store("ffh-draft-" + p.n, body.value));
+  } else {
+    const input = h("input", { type: "file", id: "f-file", style: "display:none" });
+    const zone = h("div", { class: "drop-zone" }, S.file ? `Ready: ${S.file.name}` : "Drop a .txt, .md, .docx or .pdf here, or ",
+      S.file ? null : h("button", { type: "button", class: "btn-ghost", onclick: () => input.click() }, "choose a file"));
+    input.addEventListener("change", () => { S.file = input.files[0] || null; renderDetail(); });
+    zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("over"); });
+    zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+    zone.addEventListener("drop", e => { e.preventDefault(); S.file = e.dataTransfer.files[0] || null; renderDetail(); });
+    body = h("div", {}, zone, input, S.file ? h("button", { type: "button", class: "btn-ghost", style: "margin-top:8px", onclick: () => { S.file = null; renderDetail(); } }, "Pick a different file") : null);
+  }
+  const status = h("p", { class: "status-line", id: "f-status" }, !S.db && S.ready ? "Submissions are switched off until storage is connected." : "");
+  const btn = h("button", { class: "btn", type: "submit", disabled: !S.db || S.busy }, S.busy ? "Submitting…" : `Submit to prompt ${p.n}`);
+  const form = h("form", { class: "submit", onsubmit: e => { e.preventDefault(); submit(p); } },
+    h("h3", {}, "Submit your poem"),
+    h("div", { class: "row" }, h("label", { for: "f-poet" }, "Who are you?", sel), h("label", { for: "f-title" }, "Title (optional)", title)),
+    h("div", { class: "tabs", role: "tablist" }, tabText, tabFile), body,
+    h("div", { class: "row", style: "align-items:center" }, h("div", { style: "flex:0 0 auto" }, btn), status));
+  return form;
+}
+
+/* ---------- file reading ---------- */
+function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = () => rej(new Error("Could not load a file reader. Check your connection and try again.")); document.head.append(s); }); }
+async function readDocx(file) {
+  if (!window.mammoth) await loadScript("https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js");
+  const r = await window.mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+  return r.value.replace(/\n{3,}/g, "\n\n").trim();
+}
+async function readPdf(file) {
+  if (!window.pdfjsLib) {
+    await loadScript("https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js");
+    await loadScript("https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js");
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+  }
+  const doc = await window.pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  let out = "";
+  for (let i = 1; i <= doc.numPages; i++) {
+    const tc = await (await doc.getPage(i)).getTextContent();
+    for (const it of tc.items) { out += it.str; if (it.hasEOL) out += "\n"; }
+    out += "\n\n";
+  }
+  return out.replace(/\n{3,}/g, "\n\n").trim();
+}
+function stripRtf(s) {
+  return s.replace(/\\par[d]?/g, "\n").replace(/\{\\\*[^{}]*\}/g, "").replace(/\\'[0-9a-f]{2}/gi, "").replace(/\\[a-z]+-?\d* ?/gi, "").replace(/[{}]/g, "").trim();
+}
+async function readFile(file) {
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".docx")) return readDocx(file);
+  if (name.endsWith(".pdf") || file.type === "application/pdf") return readPdf(file);
+  if (name.endsWith(".doc") || name.endsWith(".pages")) throw new Error("That format can’t be read in the browser. Save it as .docx or PDF and try again.");
+  const txt = await file.text();
+  if ((txt.slice(0, 4000).match(/\u0000|\uFFFD/g) || []).length > 20) throw new Error("That file doesn’t look like text. Try .txt, .md, .docx or PDF.");
+  return name.endsWith(".rtf") ? stripRtf(txt) : txt;
+}
+
+/* ---------- submit ---------- */
+function setStatus(msg, err) { const s = $("f-status"); if (s) { s.textContent = msg; s.className = "status-line" + (err ? " err" : ""); } }
+async function submit(p) {
+  if (!S.db || S.busy) return;
+  const poet = Number($("f-poet").value), title = $("f-title").value.trim();
+  store("ffh-poet", String(poet));
+  let text = "", fileName = null, fileUrl = null;
+  S.busy = true;
+  try {
+    if (S.mode === "text") {
+      text = ($("f-text").value || "").trim();
+      if (!text) throw new Error("Write or paste your poem first.");
+    } else {
+      if (!S.file) throw new Error("Choose a file first.");
+      if (S.file.size > 15 * 1024 * 1024) throw new Error("That file is over 15 MB. Try a smaller one.");
+      setStatus("Reading your file…");
+      text = (await readFile(S.file)).trim();
+      fileName = S.file.name;
+      setStatus("Uploading your file…");
+      const path = `prompt-${p.n}/${poet}-${Date.now()}-${fileName.replace(/[^\w.-]+/g, "_")}`;
+      const up = await S.db.storage.from("poems").upload(path, S.file, { contentType: S.file.type || "application/octet-stream" });
+      if (!up.error) fileUrl = S.db.storage.from("poems").getPublicUrl(path).data.publicUrl;
+    }
+    if (text.length > 100000) text = text.slice(0, 100000) + "\n…(trimmed)";
+    const isFirst = !S.subs.some(s => s.prompt === p.n && s.poet === poet);
+    const { data, error } = await S.db.from("submissions").insert({ prompt: p.n, poet, title, body: text, file_name: fileName, file_url: fileUrl }).select().single();
+    if (error) throw new Error("Saving failed: " + error.message);
+    addSub(data);
+    store("ffh-draft-" + p.n, "");
+    S.file = null; S.busy = false;
+    renderAll();
+    setStatus(isFirst ? "Submitted. Scroll up for your verdict." : "New version saved. Your original timestamp still counts.");
+  } catch (e) {
+    S.busy = false; renderDetail();
+    setStatus((e && e.message) || "Submitting failed. Try again.", true);
+  }
+}
+function norm(r) { return { id: r.id, prompt: r.prompt, poet: r.poet, title: r.title || "", text: r.body || "", fileName: r.file_name, assetUrl: r.file_url, submittedAt: Date.parse(r.submitted_at) }; }
+function addSub(r) { if (!S.subs.some(s => s.id === r.id)) S.subs.push(norm(r)); }
+
+/* ---------- hall of shame ---------- */
+function renderShame() {
+  const now = Date.now();
+  const rows = [0, 1, 2, 3].map(i => {
+    const r = { i, poems: 0, early: 0, photo: 0, late: 0, ghost: 0, hours: 0 };
+    for (const p of PROMPTS) {
+      const c = classify(p, i, now);
+      if (c.first) r.poems++;
+      if (c.kind === "early") r.early++;
+      if (c.kind === "photo" || c.kind === "close") r.photo++;
+      if (c.kind.startsWith("late")) { r.late++; r.hours += -c.diff / H; }
+      if (c.kind === "ghost") r.ghost++;
+    }
+    r.score = r.ghost * 100 + r.hours * 2 + r.late * 10 + r.photo;
+    return r;
+  }).sort((a, b) => b.score - a.score);
+  const worst = rows[0].score > 0 ? rows[0].i : -1;
+  $("shame-card").hidden = worst < 0;
+  $("shame").replaceChildren(...rows.map(r => h("tr", {},
+    h("td", {}, h("b", {}, nameOf(r.i)), r.i === worst ? h("span", { class: "crown" }, " · current disgrace") : null),
+    h("td", { class: "n" }, r.poems), h("td", { class: "n" }, r.early), h("td", { class: "n" }, r.photo),
+    h("td", { class: "n" }, r.late), h("td", { class: "n" }, r.ghost), h("td", { class: "n" }, r.hours.toFixed(1)))));
+}
+
+function renderAll() { renderNow(); renderCal(); renderDetail(); renderShame(); }
+
+/* ---------- boot ---------- */
+S.sel = promptFor(Date.now()).n;
+drawPoem();
+renderAll();
+let lastMinute = -1;
+setInterval(() => {
+  renderNow();
+  const m = Math.floor(Date.now() / MIN);
+  if (m !== lastMinute) { lastMinute = m; renderCal(); renderShame(); if (!document.activeElement || !$("detail").contains(document.activeElement)) renderDetail(); }
+}, 1000);
+
+(async () => {
+  const cfg = window.GARNET_CONFIG || {};
+  const banner = msg => { const b = $("banner"); b.hidden = !msg; b.textContent = msg || ""; };
+  S.ready = true;
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey || !window.supabase) {
+    banner("This site isn’t connected to its poem storage yet, so submissions are switched off.");
+    renderDetail(); return;
+  }
+  S.db = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  const refresh = () => { const a = document.activeElement; renderNow(); renderCal(); renderShame(); if (!a || !$("detail").contains(a) || a.tagName === "BUTTON") renderDetail(); };
+  async function load() {
+    const { data, error } = await S.db.from("submissions").select("*").order("submitted_at");
+    if (error) { banner("Couldn’t load poems right now. Reload the page to try again."); return; }
+    banner(""); S.subs = data.map(norm); refresh();
+  }
+  await load();
+  S.db.channel("submissions").on("postgres_changes", { event: "INSERT", schema: "public", table: "submissions" }, ({ new: row }) => { addSub(row); refresh(); }).subscribe();
+  setInterval(() => { if (document.visibilityState === "visible") load(); }, 120000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") load(); });
+  renderDetail();
+})();
+})();
+</script>
+</body>
+</html>
