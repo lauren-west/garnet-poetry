@@ -242,34 +242,85 @@ const POEMS = [
 const STOP = new Set("about above after again against their there these those which while would could should where whose with without into from that this have what when your yours then than them they were been being only ever over under upon thou thee thy art".split(" "));
 
 const ROASTS = {
-  early: ["{name} turned this in {early} early. Teacher’s pet energy. We respect it. We are also watching you.",
-          "{early} early? Suspicious, {name}. Was this written in a past life?",
-          "{name} submitted so early the prompt hadn’t finished loading. Show-off."],
-  ontime: ["On time and drama-free. Who hurt you, {name}?",
-           "{name} submitted like a functioning adult. Boring. Lovely. Boring.",
-           "Punctual, composed, emotionally available. {name}, are you okay?"],
-  close: ["{name} treats a 48-hour window like a dare.",
-          "{early} to spare, which for {name} counts as meal prep.",
-          "{name}’s muse only clocks in after the dread does."],
-  photo: ["{name} submitted with {early} left. The poem’s true subject is adrenaline.",
-          "{name} hit submit so close to midnight that Cinderella filed a complaint.",
-          "{name}’s process: 47 hours of vibes, 1 hour of panic, 0 regrets (lie)."],
-  late1: ["{late} late. Technically a poem, technically late, technically still our friend, {name}.",
-          "Close only counts in horseshoes and hand grenades, {name}. Not in poetry."],
-  late: ["{name} turned this in {late} late. Emily Dickinson got published faster, and she was dead.",
-         "{name} heard “48 hours” and assumed it was a suggestion.",
-         "{late} late. The prompt was “{prompt},” {name}, not “make everyone wait.”",
-         "{name}’s relationship with deadlines is free verse: no structure, no rules, no shame."],
-  late24: ["{late} late. {name} isn’t submitting poems anymore, {name} is submitting archival documents.",
-           "By the time {name} turned this in, it qualified as a family heirloom.",
-           "{late} late. Carbon dating was required to verify {name}’s submission."],
-  ghost: ["{name} has left the chat. And the poem. Possibly the state.",
-          "No poem from {name}. A bold avant-garde piece titled “Nothing.”",
-          "{name}’s submission is so minimalist it is invisible.",
-          "Missing: one poem. Last seen in {name}’s Notes app, untitled, three lines long."],
-  ticking: ["{name}, the clock is ticking louder than your muse.",
-            "Tick tock, {name}. The blank page is winning.",
-            "{name} has {left} left and zero poems. Thrilling stuff."],
+  early: [
+    "{name} turned this in {early} early. Even Keats waited for the nightingale to show up first.",
+    "{early} early. {name} writes like a Petrarchan sonnet: fourteen lines, strict rules, absolutely no fun.",
+    "{name} submitted so early the muse hadn’t finished her coffee. Teacher’s pet, in iambic pentameter.",
+    "A poem {early} before the deadline? {name}, this is the literary equivalent of getting to the airport five hours early.",
+    "{name} finished {early} early and is now just sitting there, like a volta with nothing to turn.",
+    "Early by {early}. Somewhere, a procrastinating Romantic poet just fainted onto a chaise longue.",
+    "{name} delivered {early} early. We don’t trust it. Check the poem for hidden acrostics.",
+    "{name} is so early that the rest of us now have to read their poem and feel bad about ours. Selfish, really.",
+  ],
+  ontime: [
+    "{name}, on time and orderly as a rhyming couplet. Predictable. Satisfying. Slightly smug.",
+    "Submitted with {early} to spare. {name} is the well-behaved quatrain of this club.",
+    "{name} hit the deadline like a metronome hits a beat. Robert Frost would call this the road most traveled.",
+    "Punctual, measured, emotionally available. {name}, are you a haiku? Who hurt you into being this functional?",
+    "{name} turned this in on time, which is the least dramatic thing a poet has ever done.",
+    "No drama, no deadline panic. {name} writes poems the way a librarian shelves books: on schedule, alphabetized, suspicious.",
+    "{name} arrived on time, like a well-placed comma. We barely noticed, and that’s the point.",
+  ],
+  close: [
+    "{name} treats a 48-hour window like a villanelle: circling back to the same panic over and over.",
+    "{early} to spare. {name}’s muse only clocks in once the dread has written the first draft.",
+    "{name} wrote this the way Coleridge wrote “Kubla Khan”: in a fevered rush, probably interrupted, dangerously close to never.",
+    "Cutting it close, {name}. Your poem has enjambment, and so does your relationship with deadlines.",
+    "{name} let most of the deadline pass like one enormous caesura. Dramatic pause. Then, finally, words.",
+    "Only {early} left when {name} showed up. Bold to write about “{prompt}” while living through a cliffhanger.",
+    "{name}’s creative process is free verse: no structure, no plan, just vibes and a deadline breathing down the stanza.",
+    "{name} turned this in with {early} left. Edgar Allan Poe called. Even he thinks this is a bit dark.",
+  ],
+  photo: [
+    "{name} submitted with {early} left. The poem’s true meter is a racing heartbeat.",
+    "{name} hit submit so close to midnight that Cinderella filed a formal complaint in rhyming couplets.",
+    "{early} left on the clock. {name} didn’t write a poem, {name} wrote a hostage negotiation.",
+    "{name}’s process: 47 hours of staring at the moon like a Romantic poet, 1 hour of actual typing.",
+    "With {early} to spare, {name} proves that the most powerful poetic device is panic.",
+    "{name} turned this in at the last stroke, like a sonnet that only found its volta on line fourteen.",
+    "Photo finish. {name}’s poem about “{prompt}” was written in the time it takes to microwave popcorn.",
+    "{name} wrote this so close to the wire that the ink is still screaming.",
+  ],
+  late1: [
+    "{late} late. Technically a poem, technically late, technically still our friend, {name}.",
+    "{name} missed the deadline by {late}. So close the clock is writing an elegy about it.",
+    "{late} late, {name}. Close only counts in horseshoes, hand grenades and slant rhyme. Not deadlines.",
+    "{name} arrived {late} after midnight, like a poem that thinks it’s mysterious. It’s just late.",
+    "Just {late} late. {name}, this is the poetic equivalent of a run-on sentence: it should have stopped sooner.",
+    "{name} slipped in {late} late, hoping nobody would notice. We noticed. We wrote a haiku about it. It’s mean.",
+  ],
+  late: [
+    "{name} turned this in {late} late. Emily Dickinson got published faster, and she was dead.",
+    "{name} heard “48 hours” and read it as a metaphor.",
+    "{late} late. The prompt was “{prompt},” {name}, not “keep everyone in suspense.”",
+    "{name}’s relationship with deadlines is like Wordsworth’s with clouds: wandering, lonely, nowhere near on time.",
+    "{late} late. {name} took the road less traveled, and it turns out that road has no clocks.",
+    "Do not go gentle into that good night, {name}. Do go quickly. You were {late} late.",
+    "{name} submitted {late} late. Shakespeare wrote 154 sonnets; {name} wrote one and still couldn’t make it.",
+    "{late} past the deadline. {name}’s poem now counts as a found poem, because we had to go find it.",
+    "{name} was {late} late. That’s not a pause for effect, that’s an intermission.",
+  ],
+  late24: [
+    "{late} late. {name} isn’t submitting poems anymore, {name} is submitting archival documents.",
+    "By the time {name} turned this in, it qualified as a family heirloom.",
+    "{late} late. Carbon dating was required to verify {name}’s submission.",
+    "{name} took so long that this poem is now technically in the public domain.",
+    "{late} late. {name}’s muse quit and moved to a small cabin on the Lake Isle of Innisfree.",
+    "{name} turned this in {late} late. Odysseus got home faster.",
+    "{late} overdue. {name}, this isn’t a submission, it’s a sequel.",
+    "Look on {name}’s works, ye Mighty, and despair: a deadline shattered {late} ago, and nothing beside remains.",
+  ],
+  ghost: [
+    "{name} has left the chat. And the poem. Possibly the state.",
+    "No poem from {name}. A bold avant-garde piece titled “Nothing,” performed in total silence.",
+    "{name}’s submission is so minimalist it’s invisible. The white space is doing all the work.",
+    "Missing: one poem. Last seen in {name}’s Notes app, untitled, three lines long, abandoned.",
+    "Because {name} could not stop for Deadline, Deadline kindly stopped for {name}. It is still waiting.",
+    "{name}’s poem for “{prompt}” is a haiku with zero syllables. Daring. Unreadable. Absent.",
+    "Here lies {name}’s poem for “{prompt}.” It was never born. We mourn it in free verse.",
+    "Two roads diverged in a wood, and {name} took neither and also did not write a poem.",
+    "{name} is giving Lost Generation energy. Emphasis on lost. Emphasis on no poem.",
+  ],
 };
 
 /* ---------- helpers ---------- */
@@ -314,9 +365,9 @@ function classify(p, poet, now) {
   if (now >= p.assigned) return { kind: "writing", label: "Writing…", cls: "idle" };
   return { kind: "soon", label: "Not open yet", cls: "idle" };
 }
-function canned(kind, p, poet, diff) {
+function canned(kind, p, poet, diff, seed) {
   const list = ROASTS[kind]; if (!list) return "";
-  const line = list[hash(kind + p.n + ":" + poet) % list.length];
+  const line = list[hash(kind + ":" + p.n + ":" + poet + ":" + (seed ?? "")) % list.length];
   const d = fmtDur(diff || 0);
   return line.replaceAll("{name}", nameOf(poet)).replaceAll("{prompt}", p.text).replaceAll("{early}", d).replaceAll("{late}", d).replaceAll("{left}", d);
 }
@@ -392,8 +443,8 @@ function renderDetail() {
     const c = classify(p, i, now);
     let roastEl = null;
     if (c.first) {
-      const txt = c.first.roast || canned(c.kind, p, i, c.diff);
-      const pending = !c.first.roast && c.first.roastPending;
+      const txt = canned(c.kind, p, i, c.diff, c.first.id);
+      const pending = false;
       roastEl = h("p", { class: "roast" + (c.kind === "early" || c.kind === "ontime" ? " kind" : "") + (pending ? " pending" : "") }, pending ? "Claude is sharpening a roast…" : txt);
     } else if (c.kind === "ghost") roastEl = h("p", { class: "roast" }, canned(c.kind, p, i, c.diff));
     return h("div", { class: "poet" },
