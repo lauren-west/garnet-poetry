@@ -67,7 +67,7 @@ header .sub { color: var(--muted); max-width: none; font-family: var(--f-display
 /* featured words */
 .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; align-items: start; }
 .main { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
-.side { position: sticky; top: max(24px, env(safe-area-inset-top, 0px)); min-width: 0; }
+.side { min-width: 0; }
 .muse { display: flex; flex-direction: column; gap: 20px; }
 .muse .word { font-size: 1.15rem; }
 .muse .words { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
@@ -155,7 +155,6 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 
 @media (max-width: 1080px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
-  .side { position: static; }
   .muse { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; }
 }
 @media (max-width: 720px) {
@@ -178,8 +177,7 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 </head>
 <body>
 <div class="wrap">
-  <div class="layout">
-    <main class="main">
+  <main class="main">
     <header>
       <h1>Garnet Girls Poetry Club</h1>
       <p class="eyebrow tagline">16-Day Challenge · Nov 15 – Dec 1</p>
@@ -197,7 +195,22 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
       <div class="cal" id="cal"></div>
     </section>
 
-    <section class="card detail" id="detail" aria-labelledby="detail-h"></section>
+    <div class="layout">
+      <section class="card detail" id="detail" aria-labelledby="detail-h"></section>
+      <aside class="side" aria-label="A bit of inspiration">
+        <section class="card muse" aria-labelledby="muse-h">
+          <div>
+            <span class="eyebrow" id="muse-h">A bit of inspiration</span>
+            <div class="words" id="words"></div>
+            <div class="muse-foot">
+              <button class="btn-ghost" id="reshuffle" type="button">Draw another poem</button>
+              <span class="muted" style="font-size:.88rem">Read it slowly. Let something here spark your next line.</span>
+            </div>
+          </div>
+          <blockquote class="excerpt" id="excerpt" style="margin:0"></blockquote>
+        </section>
+      </aside>
+    </div>
 
     <section class="card" id="shame-card" aria-labelledby="shame-h" hidden>
       <div class="cal-head">
@@ -210,21 +223,7 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
         </table>
       </div>
     </section>
-    </main>
-    <aside class="side" aria-label="A bit of inspiration">
-    <section class="card muse" aria-labelledby="muse-h">
-      <div>
-        <span class="eyebrow" id="muse-h">A bit of inspiration</span>
-        <div class="words" id="words"></div>
-        <div class="muse-foot">
-          <button class="btn-ghost" id="reshuffle" type="button">Draw another poem</button>
-          <span class="muted" style="font-size:.88rem">Read it slowly. Let something here spark your next line.</span>
-        </div>
-      </div>
-      <blockquote class="excerpt" id="excerpt" style="margin:0"></blockquote>
-    </section>
-    </aside>
-  </div>
+  </main>
 </div>
 
 <script src="config.js"></script>
