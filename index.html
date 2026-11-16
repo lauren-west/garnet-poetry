@@ -40,7 +40,7 @@ img { max-width: 100%; }
 [hidden] { display: none !important; }
 .now { background-image: radial-gradient(120% 140% at 100% 0%, rgba(242,181,68,.18), transparent 55%); }
 body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: clamp(15px, 0.6vw + 9px, 18px); line-height: 1.5; }
-.wrap { max-width: 1200px; width: 100%; margin: 0 auto; padding-block: 28px 64px;
+.wrap { max-width: 1360px; width: 100%; margin: 0 auto; padding-block: 28px 64px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: flex; flex-direction: column; gap: 28px; }
 h1, h2, h3 { font-family: var(--f-display); font-weight: 400; text-wrap: balance; margin: 0; line-height: 1.15; }
@@ -64,7 +64,11 @@ header { display: flex; flex-direction: column; gap: 10px; }
 header .sub { color: var(--muted); max-width: 52ch; font-family: var(--f-display); font-size: 1.15rem; line-height: 1.55; font-style: italic; }
 
 /* featured words */
-.muse { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start; }
+.main { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+.side { position: sticky; top: max(24px, env(safe-area-inset-top, 0px)); min-width: 0; }
+.muse { display: flex; flex-direction: column; gap: 20px; }
+.muse .word { font-size: 1.15rem; }
 .muse .words { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
 .word { font-family: var(--f-display); font-size: 1.35rem; background: var(--hi); color: var(--hi-ink); padding: 2px 10px; border-radius: 3px; transform: rotate(var(--r, 0deg)); animation: drop .5s ease-out both; animation-delay: var(--d, 0s); }
 @keyframes drop { from { transform: translateY(-8px) rotate(var(--r, 0deg)); opacity: .4; } to { transform: rotate(var(--r, 0deg)); opacity: 1; } }
@@ -142,8 +146,13 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 
 .banner { border: 1.5px solid var(--warn); color: var(--warn); border-radius: 8px; padding: 10px 14px; font-size: .92rem; }
 
+@media (max-width: 1080px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; order: -1; }
+  .muse { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 24px; align-items: start; }
+}
 @media (max-width: 720px) {
-  .muse, .now { grid-template-columns: minmax(0, 1fr); }
+  .now, .muse { grid-template-columns: minmax(0, 1fr); }
   .clock { text-align: left; }
   .roster { grid-template-columns: minmax(0, 1fr); }
   .day { min-height: 68px; padding: 3px; gap: 3px; }
@@ -167,43 +176,48 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
     <p class="sub">I have as many doors as a spider has legs, and as many keepers as the year has seasons. Each door opens in the last minute of a day and shuts in the last minute of the day after next. Step through before it shuts and you are a poet. Step through after and you are a story we never stop telling. What am I?</p>
   </header>
 
-  <section class="card muse" aria-labelledby="muse-h">
-    <div>
-      <span class="eyebrow" id="muse-h">Word bank · from a random poem</span>
-      <div class="words" id="words"></div>
-      <div class="muse-foot">
-        <button class="btn-ghost" id="reshuffle" type="button">Draw another poem</button>
-        <span class="muted" style="font-size:.88rem">Sneak one into your poem for bonus glory.</span>
+  <div class="layout">
+    <main class="main">
+    <section class="card now" id="now" aria-live="polite"></section>
+
+    <div id="banner" class="banner" hidden></div>
+
+    <section aria-labelledby="cal-h">
+      <div class="cal-head">
+        <h2 id="cal-h">The calendar</h2>
+        <span class="muted" style="font-size:.9rem">Click a day to open its prompt. Dots are Hattie, Marina, Avery and Lauren, in that order.</span>
       </div>
-    </div>
-    <blockquote class="excerpt" id="excerpt" style="margin:0"></blockquote>
-  </section>
+      <div class="cal" id="cal"></div>
+    </section>
 
-  <section class="card now" id="now" aria-live="polite"></section>
+    <section class="card detail" id="detail" aria-labelledby="detail-h"></section>
 
-  <div id="banner" class="banner" hidden></div>
-
-  <section aria-labelledby="cal-h">
-    <div class="cal-head">
-      <h2 id="cal-h">The calendar</h2>
-      <span class="muted" style="font-size:.9rem">Click a day to open its prompt. Dots are Hattie, Marina, Avery and Lauren, in that order.</span>
-    </div>
-    <div class="cal" id="cal"></div>
-  </section>
-
-  <section class="card detail" id="detail" aria-labelledby="detail-h"></section>
-
-  <section class="card" id="shame-card" aria-labelledby="shame-h" hidden>
-    <div class="cal-head">
-      <h2 id="shame-h">Hall of Shame</h2>
-    </div>
-    <div class="shame-wrap" style="margin-top:14px">
-      <table class="shame">
-        <thead><tr><th>Poet</th><th>Poems</th><th>Early birds</th><th>Photo finishes</th><th>Late</th><th>Ghosted</th><th>Hours late</th></tr></thead>
-        <tbody id="shame"></tbody>
-      </table>
-    </div>
-  </section>
+    <section class="card" id="shame-card" aria-labelledby="shame-h" hidden>
+      <div class="cal-head">
+        <h2 id="shame-h">Hall of Shame</h2>
+      </div>
+      <div class="shame-wrap" style="margin-top:14px">
+        <table class="shame">
+          <thead><tr><th>Poet</th><th>Poems</th><th>Early birds</th><th>Photo finishes</th><th>Late</th><th>Ghosted</th><th>Hours late</th></tr></thead>
+          <tbody id="shame"></tbody>
+        </table>
+      </div>
+    </section>
+    </main>
+    <aside class="side" aria-label="Word bank">
+    <section class="card muse" aria-labelledby="muse-h">
+      <div>
+        <span class="eyebrow" id="muse-h">Word bank · from a random poem</span>
+        <div class="words" id="words"></div>
+        <div class="muse-foot">
+          <button class="btn-ghost" id="reshuffle" type="button">Draw another poem</button>
+          <span class="muted" style="font-size:.88rem">Borrow a word, a line, or just the feeling. Let it start something.</span>
+        </div>
+      </div>
+      <blockquote class="excerpt" id="excerpt" style="margin:0"></blockquote>
+    </section>
+    </aside>
+  </div>
 </div>
 
 <script src="config.js"></script>
