@@ -2,7 +2,7 @@
 
 A 16-day poetry challenge site: eight prompts, four poets, each poem due 48 hours after its prompt drops.
 
-- `index.html` is the whole site (calendar, word bank, submissions, roasts, Hall of Shame).
+- `index.html` is the whole site (calendar, a bit of inspiration from a random poem, submissions, roasts, Hall of Shame).
 - `config.js` holds the Supabase URL and anon key.
 - `supabase/schema.sql` sets up the poem table and file storage.
 
