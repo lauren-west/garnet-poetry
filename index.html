@@ -428,7 +428,7 @@ function fmtWhen(t) { return new Date(t).toLocaleString(undefined, { weekday: "s
 function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch { return null; } }
 
 /* ---------- state ---------- */
-const S = { names: ["Hattie", "Marina", "Avery", "Lauren", "Unknown"], subs: [], db: null, ready: false, sel: null, mode: "text", file: null, busy: false };
+const S = { names: ["Hattie", "Marina", "Avery", "Lauren", "Unknown"], subs: [], db: null, ready: false, sel: null, mode: "text", file: null, busy: false, editing: null };
 
 function promptFor(now) { return PROMPTS.find(p => now < p.due) || PROMPTS[PROMPTS.length - 1]; }
 function nameOf(i) { return S.names[i] || "Unknown"; }
@@ -594,6 +594,9 @@ function renderDetail() {
 }
 
 function buildForm(p) {
+  const ed = S.editing != null ? S.subs.find(s => s.id === S.editing && s.prompt === p.n && canEdit(s)) : null;
+  if (S.editing != null && !ed) S.editing = null;
+  if (ed) return buildEditForm(p, ed);
   const last = store("ffh-poet");
   const sel = h("select", { id: "f-poet" }, [0, 1, 2, 3, 4].map(i => { const o = h("option", { value: i }, nameOf(i)); if (String(i) === last) o.selected = true; return o; }));
   const title = h("input", { type: "text", id: "f-title", placeholder: "Untitled", maxlength: "120" });
@@ -622,6 +625,39 @@ function buildForm(p) {
     h("div", { class: "tabs", role: "tablist" }, tabText, tabFile), body,
     h("div", { class: "row", style: "align-items:center" }, h("div", { style: "flex:0 0 auto" }, btn), status));
   return form;
+}
+
+function buildEditForm(p, ed) {
+  if (!S.draft || S.draft.id !== ed.id) S.draft = { id: ed.id, title: ed.title, text: ed.text };
+  const title = h("input", { type: "text", id: "f-title", placeholder: "Untitled", maxlength: "120", value: S.draft.title });
+  const body = h("textarea", { id: "f-text" }); body.value = S.draft.text;
+  title.addEventListener("input", () => { S.draft.title = title.value; });
+  body.addEventListener("input", () => { S.draft.text = body.value; });
+  const status = h("p", { class: "status-line", id: "f-status" }, "");
+  const btn = h("button", { class: "btn", type: "submit", disabled: S.busy }, S.busy ? "Saving…" : "Save changes");
+  const cancel = h("button", { class: "btn-ghost", type: "button", onclick: () => { S.editing = null; S.draft = null; renderDetail(); } }, "Cancel");
+  return h("form", { class: "submit", onsubmit: e => { e.preventDefault(); saveEdit(p, ed); } },
+    h("h3", {}, `Edit ${nameOf(ed.poet)}’s poem`),
+    h("p", { class: "muted", style: "font-size:.9rem" }, `You can edit until ${fmtWhen(p.due)}. Your original submission time still counts.`),
+    h("label", { for: "f-title" }, "Title (optional)", title), body,
+    h("div", { class: "row", style: "align-items:center" }, h("div", { style: "flex:0 0 auto;display:flex;gap:8px" }, btn, cancel), status));
+}
+async function saveEdit(p, ed) {
+  if (!S.db || S.busy) return;
+  const title = $("f-title").value.trim(), text = ($("f-text").value || "").trim();
+  if (!text) { setStatus("Your poem can’t be empty.", true); return; }
+  S.busy = true;
+  try {
+    const { data, error } = await S.db.rpc("edit_poem", { p_id: ed.id, p_key: keys()[ed.id], p_title: title, p_body: text.slice(0, 100000) });
+    if (error) throw new Error(error.message || "Saving failed. Try again.");
+    upsertSub(data);
+    S.editing = null; S.draft = null; S.busy = false;
+    renderAll();
+    setStatus("Changes saved.");
+  } catch (e) {
+    S.busy = false; renderDetail();
+    setStatus((e && e.message) || "Saving failed. Try again.", true);
+  }
 }
 
 /* ---------- file reading ---------- */
@@ -684,10 +720,16 @@ async function submit(p) {
     }
     if (text.length > 100000) text = text.slice(0, 100000) + "\n…(trimmed)";
     const isFirst = !S.subs.some(s => s.prompt === p.n && s.poet === poet);
-    const { data, error } = await S.db.from("submissions").insert({ prompt: p.n, poet, title, body: text, file_name: fileName, file_url: fileUrl }).select().single();
-    if (error) throw new Error("Saving failed: " + error.message);
+    let data, key = null;
+    const rpc = await S.db.rpc("submit_poem", { p_prompt: p.n, p_poet: poet, p_title: title, p_body: text, p_file_name: fileName, p_file_url: fileUrl });
+    if (!rpc.error) { data = rpc.data.row; key = rpc.data.edit_key; }
+    else if (rpc.error.code === "PGRST202") {
+      const ins = await S.db.from("submissions").insert({ prompt: p.n, poet, title, body: text, file_name: fileName, file_url: fileUrl }).select().single();
+      if (ins.error) throw new Error("Saving failed: " + ins.error.message);
+      data = ins.data;
+    } else throw new Error("Saving failed: " + rpc.error.message);
     addSub(data);
-    rememberMine(data.id);
+    if (key) saveKey(data.id, key); else rememberMine(data.id);
     store("ffh-draft-" + p.n, "");
     S.file = null; S.busy = false;
     renderAll();
@@ -697,8 +739,9 @@ async function submit(p) {
     setStatus((e && e.message) || "Submitting failed. Try again.", true);
   }
 }
-function norm(r) { return { id: r.id, prompt: r.prompt, poet: r.poet, title: r.title || "", text: r.body || "", fileName: r.file_name, assetUrl: r.file_url, submittedAt: Date.parse(r.submitted_at) }; }
+function norm(r) { return { id: r.id, prompt: r.prompt, poet: r.poet, title: r.title || "", text: r.body || "", fileName: r.file_name, assetUrl: r.file_url, submittedAt: Date.parse(r.submitted_at), editedAt: r.edited_at ? Date.parse(r.edited_at) : null }; }
 function addSub(r) { if (!S.subs.some(s => s.id === r.id)) S.subs.push(norm(r)); }
+function upsertSub(r) { const i = S.subs.findIndex(s => s.id === r.id); if (i < 0) S.subs.push(norm(r)); else S.subs[i] = norm(r); }
 
 /* ---------- hall of shame ---------- */
 function renderShame() {
@@ -735,6 +778,10 @@ const MORE_STOP = new Set(("the and a an of to in on at for is it its i me my we
   "own same other more most much many few one two up down out over under again further once off about above below between through during before after " +
   "while until because till yet still even ever never always oh like im its dont cant wont ive id youre theyre thats whats lets us").split(" "));
 function mine() { try { return new Set(JSON.parse(localStorage.getItem("ffh-mine") || "[]")); } catch { return new Set(); } }
+function keys() { try { return JSON.parse(localStorage.getItem("ffh-keys") || "{}"); } catch { return {}; } }
+function saveKey(id, key) { try { const k = keys(); k[id] = key; localStorage.setItem("ffh-keys", JSON.stringify(k)); } catch {} rememberMine(id); }
+function canEdit(s) { const p = PROMPTS.find(x => x.n === s.prompt); return !!(p && Date.now() <= p.due && keys()[s.id]); }
+function startEdit(s) { S.editing = s.id; S.mode = "text"; renderDetail(); const t = $("f-text"); if (t) { t.focus(); $("detail").querySelector("form.submit").scrollIntoView({ behavior: "smooth", block: "start" }); } }
 function rememberMine(id) { try { const m = mine(); m.add(id); localStorage.setItem("ffh-mine", JSON.stringify([...m])); } catch {} }
 function isRevealed(p, s, now) { return now > p.due || mine().has(s.id); }
 function wordsOf(text) { return (text.toLowerCase().match(/[a-z’']+/g) || []).map(w => w.replace(/[’']/g, "")).filter(w => w.length > 2 && !MORE_STOP.has(w) && !STOP.has(w)); }
@@ -752,7 +799,8 @@ function toast(text, cite) {
 /* ---------- sealed poems (revealed at the deadline) ---------- */
 function poemDetails(s) {
   return h("details", {},
-    h("summary", {}, h("span", { class: "who" }, avatar(s.poet, 24), h("b", {}, nameOf(s.poet)), s.title ? ` — ${s.title}` : ""), h("span", { class: "muted mono", style: "font-size:.8rem" }, fmtWhen(s.submittedAt))),
+    h("summary", {}, h("span", { class: "who" }, avatar(s.poet, 24), h("b", {}, nameOf(s.poet)), s.title ? ` — ${s.title}` : ""), h("span", { class: "muted mono", style: "font-size:.8rem" }, fmtWhen(s.submittedAt), s.editedAt ? ` · edited ${fmtWhen(s.editedAt)}` : "")),
+    canEdit(s) ? h("button", { type: "button", class: "btn-ghost", style: "margin-top:10px", onclick: () => startEdit(s) }, "Edit this poem") : null,
     s.fileName ? h("p", { class: "muted", style: "font-size:.85rem;margin-top:8px" }, `From ${s.fileName}`, s.assetUrl ? " · " : "", s.assetUrl ? h("a", { href: s.assetUrl, target: "_blank", rel: "noopener" }, "open original") : null) : null,
     h("div", { class: "poem-body" }, s.text || "(No readable text in this file.)"));
 }
@@ -1042,6 +1090,13 @@ document.addEventListener("keydown", e => {
 });
 
 /* ---------- boot ---------- */
+(() => {
+  const m = location.hash.match(/^#claim=(\d+)\.([0-9a-f-]{36})$/i);
+  if (!m) return;
+  saveKey(Number(m[1]), m[2]);
+  history.replaceState(null, "", location.pathname + location.search);
+  setTimeout(() => toast("This browser can now edit that poem."), 300);
+})();
 S.sel = promptFor(Date.now()).n;
 drawPoem();
 renderLegend();
@@ -1073,7 +1128,8 @@ setInterval(() => {
     banner(""); S.subs = data.map(norm); refresh();
   }
   await load();
-  S.db.channel("submissions").on("postgres_changes", { event: "INSERT", schema: "public", table: "submissions" }, ({ new: row }) => { addSub(row); refresh(); }).subscribe();
+  S.db.channel("submissions").on("postgres_changes", { event: "INSERT", schema: "public", table: "submissions" }, ({ new: row }) => { addSub(row); refresh(); })
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "submissions" }, ({ new: row }) => { upsertSub(row); refresh(); }).subscribe();
   setInterval(() => { if (document.visibilityState === "visible") load(); }, 120000);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") load(); });
   renderDetail();

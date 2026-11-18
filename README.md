@@ -9,7 +9,7 @@ A 16-day poetry challenge site: eight prompts, four poets, each poem due 48 hour
 ## Setup
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. In the project, open **SQL Editor**, paste `supabase/schema.sql`, and run it.
+2. In the project, open **SQL Editor**, paste `supabase/schema.sql`, and run it. Then do the same with `supabase/editing.sql`.
 3. In **Project Settings → API**, copy the Project URL and the `anon` public key into `config.js`.
 4. Push to `main`. GitHub Pages serves the site from the repo root.
 
@@ -17,4 +17,5 @@ A 16-day poetry challenge site: eight prompts, four poets, each poem due 48 hour
 
 - Submission times come from the database clock, so they can't be faked.
 - The site has no logins: anyone with the link can read the poems and submit one.
-- Poems can't be edited or deleted from the site. To remove one, delete its row in Supabase → Table Editor.
+- Poets can edit their own poem until that prompt's deadline. To turn this on, run `supabase/editing.sql` once in the SQL Editor. Submitting gives the poet's browser a secret edit key, and the original submission time still counts. To edit from another browser, open the site with `#claim=<poem id>.<edit key>` on the end of the URL (keys are in the `submission_keys` table).
+- Poems can't be deleted from the site. To remove one, delete its row in Supabase → Table Editor.
