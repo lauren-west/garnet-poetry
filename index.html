@@ -174,6 +174,8 @@ table.shame { width: 100%; border-collapse: collapse; font-variant-numeric: tabu
 .leaf:hover { opacity: 1; }
 .toast { position: fixed; left: 50%; bottom: max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px)); transform: translateX(-50%); background: var(--hero-bg); color: var(--hero-fg); padding: 12px 18px; border-radius: 10px; font-family: var(--f-display); width: max-content; max-width: min(560px, calc(100vw - 32px)); z-index: 30; box-shadow: 0 10px 30px rgba(0,0,0,.3); text-align: center; }
 .toast cite { display: block; font-family: var(--f-mono); font-size: .75rem; font-style: normal; opacity: .75; margin-top: 4px; }
+.sealed { display: flex; align-items: center; gap: 14px; border: 1px dashed var(--line); border-radius: 8px; padding: 12px 14px; background: var(--paper); }
+.seal { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #C2405A, #6D1528 70%); box-shadow: inset 0 0 0 3px rgba(0,0,0,.18), 0 1px 0 rgba(0,0,0,.2); flex: none; display: grid; place-items: center; color: #FCEFE8; font-family: var(--f-display); font-size: 1rem; }
 .nudge { font-family: var(--f-display); font-style: italic; color: var(--accent); }
 .cloud { display: flex; flex-wrap: wrap; gap: 4px 14px; justify-content: center; align-items: baseline; line-height: 1.2; margin-top: 12px; }
 .cloud span { font-family: var(--f-display); }
@@ -587,7 +589,7 @@ function renderDetail() {
       h("div", {}, h("span", { class: "eyebrow" }, `Prompt ${p.n} of 8`), h("h2", { id: "detail-h", style: "margin-top:4px" }, p.text), p.note ? h("p", { class: "muted", style: "margin-top:6px" }, p.note) : null),
       h("div", { class: "when" }, `Drops ${fmtWhen(p.assigned)}`, h("br"), h("b", {}, `Due ${fmtWhen(p.due)}`))),
     roster,
-    h("div", {}, h("h3", { style: "margin-bottom:10px" }, `The poems (${subs.length})`), poems),
+    h("div", {}, h("h3", { style: "margin-bottom:10px" }, Date.now() > p.due ? `The poems (${subs.length})` : `The poems (${subs.length}) \u00B7 sealed until the deadline`), poems),
     buildForm(p));
 }
 
@@ -734,6 +736,7 @@ const MORE_STOP = new Set(("the and a an of to in on at for is it its i me my we
   "while until because till yet still even ever never always oh like im its dont cant wont ive id youre theyre thats whats lets us").split(" "));
 function mine() { try { return new Set(JSON.parse(localStorage.getItem("ffh-mine") || "[]")); } catch { return new Set(); } }
 function rememberMine(id) { try { const m = mine(); m.add(id); localStorage.setItem("ffh-mine", JSON.stringify([...m])); } catch {} }
+function isRevealed(p, s, now) { return now > p.due || mine().has(s.id); }
 function wordsOf(text) { return (text.toLowerCase().match(/[a-z’']+/g) || []).map(w => w.replace(/[’']/g, "")).filter(w => w.length > 2 && !MORE_STOP.has(w) && !STOP.has(w)); }
 function revealedSubs(now) { return S.subs.filter(s => { const p = PROMPTS.find(x => x.n === s.prompt); return p && now > p.due; }); }
 
@@ -746,16 +749,28 @@ function toast(text, cite) {
   toastTimer = setTimeout(() => { t.hidden = true; }, 5000);
 }
 
-/* ---------- poems (everyone can read them as soon as they're in) ---------- */
+/* ---------- sealed poems (revealed at the deadline) ---------- */
 function poemDetails(s) {
   return h("details", {},
     h("summary", {}, h("span", { class: "who" }, avatar(s.poet, 24), h("b", {}, nameOf(s.poet)), s.title ? ` — ${s.title}` : ""), h("span", { class: "muted mono", style: "font-size:.8rem" }, fmtWhen(s.submittedAt))),
     s.fileName ? h("p", { class: "muted", style: "font-size:.85rem;margin-top:8px" }, `From ${s.fileName}`, s.assetUrl ? " · " : "", s.assetUrl ? h("a", { href: s.assetUrl, target: "_blank", rel: "noopener" }, "open original") : null) : null,
     h("div", { class: "poem-body" }, s.text || "(No readable text in this file.)"));
 }
+function sealedCard(s, p) {
+  return h("div", { class: "sealed" },
+    h("span", { class: "seal", "aria-hidden": "true" }, "G"),
+    h("div", { style: "min-width:0" },
+      h("div", { class: "who" }, avatar(s.poet, 24), h("b", {}, nameOf(s.poet)), h("span", { class: "muted" }, "sealed a poem")),
+      h("div", { class: "muted mono", style: "font-size:.78rem;margin-top:2px" }, `Opens ${fmtWhen(p.due)}`)));
+}
 function renderPoemList(p, subs) {
+  const now = Date.now();
   if (!subs.length) return h("p", { class: "muted" }, "No poems yet for this prompt.");
-  return h("div", { class: "poems" }, subs.map(poemDetails));
+  return h("div", { class: "poems" }, subs.map(s => {
+    if (now > p.due) return poemDetails(s);
+    if (mine().has(s.id)) { const d = poemDetails(s); d.querySelector("summary").append(h("span", { class: "pill idle" }, "only you can see this")); return d; }
+    return sealedCard(s, p);
+  }));
 }
 
 /* ---------- word cloud ---------- */
