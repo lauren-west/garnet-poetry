@@ -598,8 +598,12 @@ function buildForm(p) {
   if (S.editing != null && !ed) S.editing = null;
   if (ed) return buildEditForm(p, ed);
   const last = store("ffh-poet");
-  const sel = h("select", { id: "f-poet" }, [0, 1, 2, 3, 4].map(i => { const o = h("option", { value: i }, nameOf(i)); if (String(i) === last) o.selected = true; return o; }));
+  const pick = h("option", { value: "", disabled: "" }, "Choose your name"); if (last == null || last === "") pick.selected = true;
+  const sel = h("select", { id: "f-poet", required: "" }, pick, [0, 1, 2, 3, 4].map(i => { const o = h("option", { value: i }, nameOf(i)); if (String(i) === last) o.selected = true; return o; }));
+  sel.addEventListener("change", () => store("ffh-poet", sel.value));   // remember right away, so re-renders keep it
   const title = h("input", { type: "text", id: "f-title", placeholder: "Untitled", maxlength: "120" });
+  title.value = S.title || "";
+  title.addEventListener("input", () => { S.title = title.value; });
   const tabText = h("button", { class: "tab", type: "button", role: "tab", "aria-selected": String(S.mode === "text"), onclick: () => { S.mode = "text"; renderDetail(); } }, "Type it");
   const tabFile = h("button", { class: "tab", type: "button", role: "tab", "aria-selected": String(S.mode === "file"), onclick: () => { S.mode = "file"; renderDetail(); } }, "Upload a file");
   let body;
@@ -699,6 +703,7 @@ async function readFile(file) {
 function setStatus(msg, err) { const s = $("f-status"); if (s) { s.textContent = msg; s.className = "status-line" + (err ? " err" : ""); } }
 async function submit(p) {
   if (!S.db || S.busy) return;
+  if ($("f-poet").value === "") { setStatus("Choose your name first.", true); return; }
   const poet = Number($("f-poet").value), title = $("f-title").value.trim();
   store("ffh-poet", String(poet));
   let text = "", fileName = null, fileUrl = null;
@@ -731,7 +736,7 @@ async function submit(p) {
     addSub(data);
     if (key) saveKey(data.id, key); else rememberMine(data.id);
     store("ffh-draft-" + p.n, "");
-    S.file = null; S.busy = false;
+    S.file = null; S.title = ""; S.busy = false;
     renderAll();
     setStatus(isFirst ? "Submitted. Scroll up for your verdict." : "New version saved. Your original timestamp still counts.");
   } catch (e) {
